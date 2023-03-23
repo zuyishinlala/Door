@@ -6,8 +6,10 @@ import 'package:door/Models/DoorRunning.dart';
 import 'package:door/Models/RecordPage.dart';
 import 'package:door/Models/ShowNamePage.dart';
 import 'package:door/Models/DoorRunning_binding.dart';
+import 'package:door/Models/Navbar.dart';
 // ==========main==========
-part 'app_routes.dart'; 
+part 'app_routes.dart';
+part 'DoorURL.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,13 +23,16 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       getPages: [
+        GetPage(name: _Paths.SignUp, page: () => SignUp()),
+        GetPage(name: _Paths.NavBar, page: () => NavBar(), binding: DoorBinding()),
+        GetPage(name: _Paths.DoorRunning, page: () => DoorRunning()),
+        GetPage(name: _Paths.Record, page: () => RecordPage()),
+        GetPage(name: _Paths.ShowName, page: () => ShowNamePage()),
+        /*
         GetPage(
-          name: _Paths.SignUp, 
-          page: () => SignUp()),
-        GetPage(
-          name: _Paths.DoorRunning, 
+          name: _Paths.DoorRunning,
           page: () => DoorRunning(),
-          children:[
+          children: [
             GetPage(
               name: _Paths.Record,
               page: () => RecordPage(),
@@ -35,10 +40,11 @@ class MyApp extends StatelessWidget {
             GetPage(
               name: _Paths.ShowName,
               page: () => ShowNamePage(),
-            ) 
+            )
           ],
-          binding : DoorBinding(),
+          binding: DoorBinding(),
         )
+        */
       ],
       home: SignUp(),
     );

@@ -24,20 +24,6 @@ class RecordPage extends StatelessWidget {
                 fontSize: 20,
                 fontWeight: FontWeight.w700),
           ),
-          Text(
-            '${door.share.value}',
-            style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 20,
-                fontWeight: FontWeight.w700),
-          ),
-          Text(
-            '${door.secret.value}',
-            style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 20,
-                fontWeight: FontWeight.w700),
-          ),
         ],
       )
     );

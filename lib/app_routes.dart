@@ -1,12 +1,13 @@
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: constant_identifier_names, unused_field
 
 part of 'main.dart';
 
 abstract class Routes {
   static const SignUp = _Paths.SignUp;
   static const DoorRunning = _Paths.DoorRunning;
-  static const Record = _Paths.DoorRunning + _Paths.Record;
-  static const ShowName = _Paths.DoorRunning + _Paths.ShowName;
+  static const Record = _Paths.Record;
+  static const ShowName = _Paths.ShowName;
+  static const NavBar = _Paths.NavBar;
 }
 
 abstract class _Paths {
@@ -14,9 +15,5 @@ abstract class _Paths {
   static const DoorRunning = '/DoorRunning';
   static const Record = '/Record';
   static const ShowName = '/ShowName';
-}
-
-abstract class APIs {
-  static const serverAdd = 'server.com';
-  
+  static const NavBar = '/Nav';
 }

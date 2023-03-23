@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:door/main.dart';
+import 'dart:typed_data';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -24,9 +25,10 @@ class _SignUpState extends State<SignUp> {
         });
       });
     } else {
-      var response = await http
-          .post(Uri.http('serveraddress', '/api'), body: {'doorName': name});
-      if (response.statusCode == 1) {
+      var response = await http.post(
+          Uri.http(DoorURL.serverAdd, DoorURL.create),
+          body: {'doorName': name});
+      if (response.statusCode == 400) {
         //not created
         WaringMessage = 'Door name had been used.';
         Timer.periodic(const Duration(seconds: 3), (timer) {
@@ -46,11 +48,9 @@ class _SignUpState extends State<SignUp> {
   }
 
   Map<String, dynamic> ConvertData(String name) {
-    return {
-      "secret" : "MTIzNDU2Nw==", // 1234567
-      "doorShare" : "NzY1NDMyMQ==", //7654321
-      "doorName" :  name
-    };
+    var Share = base64Encode(Uint8List.fromList(List.filled(1, 165)));
+    var Secret = base64Encode(Uint8List.fromList(List.filled(1, 30)));
+    return {"secret": Secret, "doorShare": Share, "doorName": name};
   }
 
   @override
@@ -179,8 +179,7 @@ class _SignUpState extends State<SignUp> {
                               fontWeight: FontWeight.w700),
                         ),
                         onPressed: () {
-                          Get.offNamed(Routes.DoorRunning,
-                              arguments: ConvertData(NameController.text));
+                          Get.toNamed(Routes.NavBar,arguments: ConvertData(NameController.text));
                         },
                       )
                     ],
