@@ -1,8 +1,9 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, non_constant_identifier_names
+
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:door/RecordBlock.dart';
 import 'package:door/Record.dart';
 
 class DoorController extends GetxController {
@@ -11,6 +12,7 @@ class DoorController extends GetxController {
   Uint8List share = Uint8List(0);
   var locked = true.obs;
   List<Record> records = [];
+  String serverAdd = 'http://127.168.0.0.1:8000';
   DoorController() {}
   void SetDoor(Map<String, dynamic> json) {
     Name.value = json["doorName"];
@@ -18,6 +20,11 @@ class DoorController extends GetxController {
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
 
+  void SetURL(String Ip, String port) {
+    serverAdd = 'http://' + Ip + ':' + port;
+    update();
+  }
+  
   unlocked() {
     locked.value = false;
     Timer.periodic(const Duration(seconds: 5), (timer) {

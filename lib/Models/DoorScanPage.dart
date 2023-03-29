@@ -12,7 +12,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
 
-
 class DoorScanPage extends StatefulWidget {
   const DoorScanPage({Key? key}) : super(key: key);
   @override

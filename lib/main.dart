@@ -25,14 +25,15 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       getPages: [
-        GetPage(name: _Paths.SignUp, page: () => SignUp()),
         GetPage(
-            name: _Paths.NavBar, page: () => NavBar(), binding: DoorBinding()),
+            name: _Paths.SignUp, page: () => SignUp(), bindings: [DoorBinding()]),
+        GetPage(
+            name: _Paths.NavBar, page: () => NavBar(), bindings: [DoorBinding()]),
         GetPage(name: _Paths.DoorScan, page: () => DoorScanPage()),
         GetPage(name: _Paths.Record, page: () => RecordPage()),
         GetPage(name: _Paths.ShowName, page: () => ShowNamePage()),
       ],
-      home: SignUp(),
+      initialRoute: _Paths.SignUp,
     );
   }
 }

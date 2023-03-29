@@ -18,7 +18,6 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   final controller = Get.put(NavBarController());
   late DoorController door = Get.find<DoorController>();
-
   @override
   void initState() {
     super.initState();
@@ -39,7 +38,7 @@ class _NavBarState extends State<NavBar> {
         body: SafeArea(
             child: IndexedStack(
                 index: controller.Tabindex,
-                children: [DoorScanPage(), RecordPage(), ShowNamePage()])),
+                children: [const DoorScanPage(), RecordPage(), ShowNamePage()])),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: controller.Tabindex,
             onTap: controller.ChangeTabIndex,

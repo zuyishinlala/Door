@@ -6,7 +6,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:door/main.dart';
-import 'dart:typed_data';
+import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:flutter/services.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -16,23 +17,22 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   TextEditingController NameController = TextEditingController();
+  TextEditingController IpController = TextEditingController();
+  TextEditingController PortController = TextEditingController();
+  late DoorController door = Get.find<DoorController>();
   String WaringMessage = '';
   void ErrorMessage(String code, String reason) {
     Get.defaultDialog(
       radius: 5,
-      middleText: 'Code Error: ${code}\nReason: ${reason}',
+      middleText: 'Code Error: $code\nReason: $reason',
       middleTextStyle: TextStyle(fontSize: 15),
       backgroundColor: Colors.blue,
     );
-    Timer(Duration(seconds: 1), () {
+    Timer(Duration(seconds: 2), () {
       Get.back();
     });
   }
 
-  bool validEnglish(String value) {
-    RegExp regex = RegExp("^[\u0000-\u007F]");
-    return regex.hasMatch(value);
-  }
 
   Future<void> SubmitName(String name) async {
     if (NameController.text.isEmpty) {
@@ -43,18 +43,10 @@ class _SignUpState extends State<SignUp> {
           timer.cancel();
         });
       });
-    } else if (!validEnglish(name)) {
-      WaringMessage = 'Name box can only contain ASCII!!!';
-      Timer.periodic(const Duration(seconds: 3), (timer) {
-        setState(() {
-          WaringMessage = '';
-          timer.cancel();
-        });
-      });
-    } else {
+    }else {
       Map map = {'doorName': name};
-      var response = await http
-          .post(Uri.http(DoorURL.serverAdd, DoorURL.create), body: json.encode(map));
+      var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
+          body: json.encode(map));
       var Data = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
         //Door created
@@ -126,6 +118,8 @@ class _SignUpState extends State<SignUp> {
                         height: 10,
                       ),
                       TextField(
+                        controller: NameController,
+                        keyboardType: TextInputType.none,
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                           fillColor: Colors.grey.shade100,
@@ -141,15 +135,12 @@ class _SignUpState extends State<SignUp> {
                             icon: const Icon(Icons.clear),
                           ),
                         ),
-                        controller: NameController,
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
                         height: 40,
                         child: Text(
-                          WaringMessage != ''
-                              ? 'Warning : ${WaringMessage}'
-                              : '',
+                          WaringMessage != '' ? 'Warning : $WaringMessage' : '',
                           style: TextStyle(
                               color: Color.fromARGB(255, 222, 136, 116),
                               fontSize: 20,
@@ -200,7 +191,86 @@ class _SignUpState extends State<SignUp> {
                           Get.offNamed(Routes.NavBar,
                               arguments: ConvertData(NameController.text));
                         },
-                      )
+                      ),
+                      TextButton(
+                        child: Text(
+                          'SetPortIp',
+                          style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        onPressed: () {
+                          Get.defaultDialog(
+                              title: "Set Port Ip",
+                              backgroundColor: Colors.grey[700],
+                              titleStyle: TextStyle(color: Colors.white),
+                              middleTextStyle: TextStyle(color: Colors.white),
+                              radius: 30,
+                              content: Column(children: [
+                                TextField(
+                                  controller: IpController,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(RegExp("[0-9.]"))
+                                  ],
+                                  style: TextStyle(color: Colors.black),
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.grey.shade100,
+                                    filled: true,
+                                    hintText: 'Ip',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        IpController.clear();
+                                      },
+                                      icon: const Icon(Icons.clear),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                TextField(
+                                  controller: PortController,
+                                  keyboardType : TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  style: TextStyle(color: Colors.black),
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.grey.shade100,
+                                    filled: true,
+                                    hintText: 'Port',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        PortController.clear();
+                                      },
+                                      icon: const Icon(Icons.clear),
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  child: Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                  onPressed: () {
+                                    door.SetURL(IpController.text, PortController.text);
+                                    Get.back();
+                                  },
+                                )
+                              ]));
+                        },
+                      ),
                     ],
                   )),
             )));

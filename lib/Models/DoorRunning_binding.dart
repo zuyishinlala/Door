@@ -4,6 +4,6 @@ import 'package:get/instance_manager.dart';
 class DoorBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<DoorController>(()=> DoorController());
+    Get.put(DoorController(), permanent: true);
   }
 }

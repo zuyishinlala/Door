@@ -27,7 +27,7 @@ class ShowNamePage extends StatelessWidget {
 
   Future<void> DeleteDoorRequest() async {
     print('Ya');
-    var response = await http.post(Uri.http(DoorURL.serverAdd, DoorURL.delete),
+    var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
         body: door.DoorRequest());
     if (response.statusCode == 200) {
       Timer(Duration(seconds: 2), () {
@@ -111,6 +111,7 @@ class ShowNamePage extends StatelessWidget {
             style: TextStyle(color: Colors.redAccent)),
         onPressed: () {
           Get.defaultDialog(
+              title: "Delete Door Comfirmation",
               radius: 5,
               middleText: 'Are you certain?',
               middleTextStyle: const TextStyle(fontSize: 20),
@@ -124,6 +125,7 @@ class ShowNamePage extends StatelessWidget {
               onConfirm: () => DeleteDoorRequest());
         },
       ),
+      Text(door.serverAdd),
     ]));
   }
 }
