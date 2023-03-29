@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -15,9 +17,34 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   TextEditingController NameController = TextEditingController();
   String WaringMessage = '';
+  void ErrorMessage(String code, String reason) {
+    Get.defaultDialog(
+      radius: 5,
+      middleText: 'Code Error: ${code}\nReason: ${reason}',
+      middleTextStyle: TextStyle(fontSize: 15),
+      backgroundColor: Colors.blue,
+    );
+    Timer(Duration(seconds: 1), () {
+      Get.back();
+    });
+  }
+
+  bool validEnglish(String value) {
+    RegExp regex = RegExp("^[\u0000-\u007F]");
+    return regex.hasMatch(value);
+  }
+
   Future<void> SubmitName(String name) async {
     if (NameController.text.isEmpty) {
       WaringMessage = 'Name box cannot be empty!';
+      Timer.periodic(const Duration(seconds: 3), (timer) {
+        setState(() {
+          WaringMessage = '';
+          timer.cancel();
+        });
+      });
+    } else if (!validEnglish(name)) {
+      WaringMessage = 'Name box can only contain ASCII!!!';
       Timer.periodic(const Duration(seconds: 3), (timer) {
         setState(() {
           WaringMessage = '';
@@ -28,21 +55,12 @@ class _SignUpState extends State<SignUp> {
       var response = await http.post(
           Uri.http(DoorURL.serverAdd, DoorURL.create),
           body: {'doorName': name});
-      if (response.statusCode == 400) {
-        //not created
-        WaringMessage = 'Door name had been used.';
-        Timer.periodic(const Duration(seconds: 3), (timer) {
-          setState(() {
-            WaringMessage = '';
-            timer.cancel();
-          });
-        });
-      } else {
-        // getoff another screen
-        // Pass data to another page
-        var Data = jsonDecode(response.body) as Map<String, dynamic>;
+      var Data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200) {
+        //Door created
         Get.offNamed(Routes.DoorRunning, arguments: Data);
-        //created
+      } else {
+        ErrorMessage(Data['code'],Data['reason']);
       }
     }
   }
@@ -179,7 +197,8 @@ class _SignUpState extends State<SignUp> {
                               fontWeight: FontWeight.w700),
                         ),
                         onPressed: () {
-                          Get.toNamed(Routes.NavBar,arguments: ConvertData(NameController.text));
+                          Get.offNamed(Routes.NavBar,
+                              arguments: ConvertData(NameController.text));
                         },
                       )
                     ],

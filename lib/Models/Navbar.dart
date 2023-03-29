@@ -26,8 +26,6 @@ class _NavBarState extends State<NavBar> {
 
   Future<void> getData() async {
     final map = await Get.arguments;
-    print('in NavBar');
-    print(map);
     setState(() {
       door.SetDoor(map);
     });
@@ -35,15 +33,15 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext Context) {
-    return GetBuilder<NavBarController>(builder: (Context) {
+    return GetBuilder<NavBarController> (builder: (Context) {
       return Scaffold(
         body: SafeArea(
             child: IndexedStack(
               index: controller.Tabindex,
               children: [ 
                 DoorRunning(),
-                ShowNamePage(), 
-                RecordPage()
+                RecordPage(),
+                ShowNamePage()
               ]
             )
         ),

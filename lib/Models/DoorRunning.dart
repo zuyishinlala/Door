@@ -7,12 +7,11 @@ import 'package:flutter/services.dart';
 
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
 import 'package:door/main.dart';
-
+import 'package:intl/intl.dart';
 
 class DoorRunning extends StatefulWidget {
   const DoorRunning({Key? key}) : super(key: key);
@@ -23,7 +22,7 @@ class DoorRunning extends StatefulWidget {
 class _DoorRunningState extends State<DoorRunning> {
   late DoorController door = Get.find<DoorController>();
   late Timer _timer;
-  bool _locked = true;
+  // bool _locked = true;
 
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
@@ -82,15 +81,15 @@ class _DoorRunningState extends State<DoorRunning> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (_locked &&
+      if (door.locked.value &&
           scanData.code != null &&
           isCorrectKey(base64Decode(scanData.code!))) {
         setState(() {
-          _locked = false;
+          door.locked.value = false;
         });
         Timer.periodic(const Duration(seconds: 3), (timer) {
           setState(() {
-            _locked = true;
+            door.locked.value = true;
             timer.cancel();
           });
         });
@@ -100,55 +99,56 @@ class _DoorRunningState extends State<DoorRunning> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: _locked
-            ? AppBar(
-                backgroundColor: Colors.red[400],
-                title: const Text(
-                  "Locked",
-                  style: TextStyle(color: Colors.white),
-                ),
-                centerTitle: true,
-              )
-            : AppBar(
-                backgroundColor: Colors.green[400],
-                title: const Text(
-                  "Pass!",
-                  style: TextStyle(color: Colors.white),
-                ),
-                centerTitle: true,
-              ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              height: 300,
-              width: 300,
-              padding: const EdgeInsets.all(8),
-              child: Center(
-                child: QrImage(
-                  data: "d=${door.Name.value}&s=$currentSeed",
-                  version: 10,
-                  errorCorrectionLevel: QrErrorCorrectLevel.L,
-                ),
+    return Container(
+        child: Column(
+            children: [
+          GetBuilder<DoorController>(
+            id: 'AppBar',
+            builder: (door) {
+              return AppBar(
+                backgroundColor:
+                    door.locked.value ? Colors.red[400] : Colors.green[400],
+                title: Text(door.locked.value ? 'Locked' : 'Pass!'),
+              );
+            },
+          ),
+          Text(
+          'Scan the QrCode below if you want to open the door.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: Color.fromARGB(255, 208, 157, 6),
+              fontSize: 20,
+              fontWeight: FontWeight.w800)
+          ),
+          Container(
+            height: 300,
+            width: 300,
+            padding: const EdgeInsets.all(8),
+            child: Center(
+              child: QrImage(
+                data: "d=${door.Name.value}&s=$currentSeed",
+                version: 10,
+                errorCorrectionLevel: QrErrorCorrectLevel.L,
               ),
             ),
-            Container(
-              height: 300,
-              width: 300,
-              child: QRView(
-                key: qrKey,
-                cameraFacing: CameraFacing.front,
-                onQRViewCreated: _onQRViewCreated,
-                overlay: QrScannerOverlayShape(
-                  borderWidth: 20,
-                  borderLength: 10,
-                  cutOutSize: MediaQuery.of(context).size.width,
-                ),
+          ),
+          
+          Expanded(
+            child: QRView(
+              key: qrKey,
+              cameraFacing : CameraFacing.front,
+              onQRViewCreated: _onQRViewCreated,
+              overlay: QrScannerOverlayShape(
+                // full screen
+                borderColor: Theme.of(context).primaryColor,
+                borderRadius: 0,
+                borderLength: 0,
+                borderWidth: 0,
+                cutOutWidth: MediaQuery.of(context).size.width,
+                cutOutHeight: MediaQuery.of(context).size.height,
               ),
             ),
-          ],
-        ));
+          ),
+        ]));
   }
 }

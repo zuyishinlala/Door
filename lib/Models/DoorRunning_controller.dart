@@ -2,13 +2,15 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'package:door/RecordBlock.dart';
+import 'package:door/Record.dart';
 
 class DoorController extends GetxController {
   Rx<String> Name = ''.obs;
   Uint8List secret = Uint8List(0);
   Uint8List share = Uint8List(0);
-  String Haha = 'Door';
-  late List<String> records;
+  var locked = true.obs;
+  List<Record> records = [];
   DoorController() {}
   void SetDoor(Map<String, dynamic> json) {
     Name.value = json["doorName"];
@@ -16,8 +18,14 @@ class DoorController extends GetxController {
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
 
-  DoorController.fromJson(Map<String, dynamic> json) {
-    Name.value = json["doorName"];
+  unlocked() {
+    locked.value = false;
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      locked.value = true;
+      update(['AppBar']);
+      timer.cancel();
+    });
+    update(['AppBar']);
   }
 
   Uint8List TransformShareData(Uint8List data) {
@@ -52,10 +60,10 @@ class DoorController extends GetxController {
     share = TransformShareData(base64Decode(json["doorShare"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
-  
+
   Map<String, dynamic> DoorRequest() {
     var SecretBuffer = Uint8List(50);
-    for (int i = 0 ; i < secret.length ; ++i) {
+    for (int i = 0; i < secret.length; ++i) {
       SecretBuffer[i ~/ 8] |= (secret[i] << (i % 8));
     }
     String base64encodedSecret = base64Encode(SecretBuffer);
@@ -65,7 +73,12 @@ class DoorController extends GetxController {
     };
   }
 
+  void insertRecord(Record newRecord) {
+    records.insert(0, newRecord);
+  }
+
   Uint8List getShare() => share;
   Uint8List getSecret() => secret;
-  String getHaha() => Haha;
+  List<Record> getRecord() => records;
+  int getRecordLen() => records.length;
 }

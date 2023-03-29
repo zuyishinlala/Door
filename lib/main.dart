@@ -28,23 +28,6 @@ class MyApp extends StatelessWidget {
         GetPage(name: _Paths.DoorRunning, page: () => DoorRunning()),
         GetPage(name: _Paths.Record, page: () => RecordPage()),
         GetPage(name: _Paths.ShowName, page: () => ShowNamePage()),
-        /*
-        GetPage(
-          name: _Paths.DoorRunning,
-          page: () => DoorRunning(),
-          children: [
-            GetPage(
-              name: _Paths.Record,
-              page: () => RecordPage(),
-            ),
-            GetPage(
-              name: _Paths.ShowName,
-              page: () => ShowNamePage(),
-            )
-          ],
-          binding: DoorBinding(),
-        )
-        */
       ],
       home: SignUp(),
     );
