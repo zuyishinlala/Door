@@ -52,15 +52,15 @@ class _SignUpState extends State<SignUp> {
         });
       });
     } else {
-      var response = await http.post(
-          Uri.http(DoorURL.serverAdd, DoorURL.create),
-          body: {'doorName': name});
+      Map map = {'doorName': name};
+      var response = await http
+          .post(Uri.http(DoorURL.serverAdd, DoorURL.create), body: json.encode(map));
       var Data = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
         //Door created
         Get.offNamed(Routes.DoorRunning, arguments: Data);
       } else {
-        ErrorMessage(Data['code'],Data['reason']);
+        ErrorMessage(Data['code'], Data['reason']);
       }
     }
   }

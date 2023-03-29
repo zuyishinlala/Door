@@ -61,16 +61,17 @@ class DoorController extends GetxController {
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
 
-  Map<String, dynamic> DoorRequest() {
+  String DoorRequest() {
     var SecretBuffer = Uint8List(50);
     for (int i = 0; i < secret.length; ++i) {
       SecretBuffer[i ~/ 8] |= (secret[i] << (i % 8));
     }
     String base64encodedSecret = base64Encode(SecretBuffer);
-    return {
+    Map map = {
       "secret": base64encodedSecret,
       "doorName": Name.value,
     };
+    return json.encode(map);
   }
 
   void insertRecord(Record newRecord) {
