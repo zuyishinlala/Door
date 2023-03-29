@@ -58,7 +58,7 @@ class _SignUpState extends State<SignUp> {
       var Data = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
         //Door created
-        Get.offNamed(Routes.DoorRunning, arguments: Data);
+        Get.offNamed(Routes.DoorScan, arguments: Data);
       } else {
         ErrorMessage(Data['code'], Data['reason']);
       }

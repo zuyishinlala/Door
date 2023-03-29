@@ -1,12 +1,13 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:door/Models/NavBar_controller.dart';
-import 'package:door/Models/DoorRunning.dart';
+import 'package:door/Models/DoorScanPage.dart';
 import 'package:door/Models/ShowNamePage.dart';
 import 'package:door/Models/RecordPage.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:door/main.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _NavBarState extends State<NavBar> {
   late DoorController door = Get.find<DoorController>();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     getData();
   }
@@ -33,18 +34,12 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext Context) {
-    return GetBuilder<NavBarController> (builder: (Context) {
+    return GetBuilder<NavBarController>(builder: (Context) {
       return Scaffold(
         body: SafeArea(
             child: IndexedStack(
-              index: controller.Tabindex,
-              children: [ 
-                DoorRunning(),
-                RecordPage(),
-                ShowNamePage()
-              ]
-            )
-        ),
+                index: controller.Tabindex,
+                children: [DoorScanPage(), RecordPage(), ShowNamePage()])),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: controller.Tabindex,
             onTap: controller.ChangeTabIndex,

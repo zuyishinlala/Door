@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import 'package:flutter/material.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
 import 'package:get/get.dart';

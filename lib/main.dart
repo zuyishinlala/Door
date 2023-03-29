@@ -1,8 +1,10 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 
 import 'package:door/Models/SignUp.dart';
 import 'package:get/get.dart';
-import 'package:door/Models/DoorRunning.dart';
+import 'package:door/Models/DoorScanPage.dart';
 import 'package:door/Models/RecordPage.dart';
 import 'package:door/Models/ShowNamePage.dart';
 import 'package:door/Models/DoorRunning_binding.dart';
@@ -24,8 +26,9 @@ class MyApp extends StatelessWidget {
       ),
       getPages: [
         GetPage(name: _Paths.SignUp, page: () => SignUp()),
-        GetPage(name: _Paths.NavBar, page: () => NavBar(), binding: DoorBinding()),
-        GetPage(name: _Paths.DoorRunning, page: () => DoorRunning()),
+        GetPage(
+            name: _Paths.NavBar, page: () => NavBar(), binding: DoorBinding()),
+        GetPage(name: _Paths.DoorScan, page: () => DoorScanPage()),
         GetPage(name: _Paths.Record, page: () => RecordPage()),
         GetPage(name: _Paths.ShowName, page: () => ShowNamePage()),
       ],

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -7,19 +9,17 @@ import 'package:flutter/services.dart';
 
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
-import 'package:door/main.dart';
-import 'package:intl/intl.dart';
 
-class DoorRunning extends StatefulWidget {
-  const DoorRunning({Key? key}) : super(key: key);
+
+class DoorScanPage extends StatefulWidget {
+  const DoorScanPage({Key? key}) : super(key: key);
   @override
-  _DoorRunningState createState() => _DoorRunningState();
+  _DoorScanPageState createState() => _DoorScanPageState();
 }
 
-class _DoorRunningState extends State<DoorRunning> {
+class _DoorScanPageState extends State<DoorScanPage> {
   late DoorController door = Get.find<DoorController>();
   late Timer _timer;
   // bool _locked = true;
@@ -100,55 +100,51 @@ class _DoorRunningState extends State<DoorRunning> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Column(
-            children: [
-          GetBuilder<DoorController>(
-            id: 'AppBar',
-            builder: (door) {
-              return AppBar(
-                backgroundColor:
-                    door.locked.value ? Colors.red[400] : Colors.green[400],
-                title: Text(door.locked.value ? 'Locked' : 'Pass!'),
-              );
-            },
-          ),
-          Text(
-          'Scan the QrCode below if you want to open the door.',
+        child: Column(children: [
+      GetBuilder<DoorController>(
+        id: 'AppBar',
+        builder: (door) {
+          return AppBar(
+            backgroundColor:
+                door.locked.value ? Colors.red[400] : Colors.green[400],
+            title: Text(door.locked.value ? 'Locked' : 'Pass!'),
+          );
+        },
+      ),
+      Text('Scan the QrCode below if you want to open the door.',
           textAlign: TextAlign.center,
           style: TextStyle(
               color: Color.fromARGB(255, 208, 157, 6),
               fontSize: 20,
-              fontWeight: FontWeight.w800)
+              fontWeight: FontWeight.w800)),
+      Container(
+        height: 300,
+        width: 300,
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: QrImage(
+            data: "d=${door.Name.value}&s=$currentSeed",
+            version: 10,
+            errorCorrectionLevel: QrErrorCorrectLevel.L,
           ),
-          Container(
-            height: 300,
-            width: 300,
-            padding: const EdgeInsets.all(8),
-            child: Center(
-              child: QrImage(
-                data: "d=${door.Name.value}&s=$currentSeed",
-                version: 10,
-                errorCorrectionLevel: QrErrorCorrectLevel.L,
-              ),
-            ),
+        ),
+      ),
+      Expanded(
+        child: QRView(
+          key: qrKey,
+          cameraFacing: CameraFacing.front,
+          onQRViewCreated: _onQRViewCreated,
+          overlay: QrScannerOverlayShape(
+            // full screen
+            borderColor: Theme.of(context).primaryColor,
+            borderRadius: 0,
+            borderLength: 0,
+            borderWidth: 0,
+            cutOutWidth: MediaQuery.of(context).size.width,
+            cutOutHeight: MediaQuery.of(context).size.height,
           ),
-          
-          Expanded(
-            child: QRView(
-              key: qrKey,
-              cameraFacing : CameraFacing.front,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: QrScannerOverlayShape(
-                // full screen
-                borderColor: Theme.of(context).primaryColor,
-                borderRadius: 0,
-                borderLength: 0,
-                borderWidth: 0,
-                cutOutWidth: MediaQuery.of(context).size.width,
-                cutOutHeight: MediaQuery.of(context).size.height,
-              ),
-            ),
-          ),
-        ]));
+        ),
+      ),
+    ]));
   }
 }
