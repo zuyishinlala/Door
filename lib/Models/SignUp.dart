@@ -20,40 +20,29 @@ class _SignUpState extends State<SignUp> {
   TextEditingController IpController = TextEditingController();
   TextEditingController PortController = TextEditingController();
   late DoorController door = Get.find<DoorController>();
-  String WaringMessage = '';
   void ErrorMessage(String code, String reason) {
     Get.defaultDialog(
-      radius: 5,
-      middleText: 'Code Error: $code\nReason: $reason',
-      middleTextStyle: TextStyle(fontSize: 15),
-      backgroundColor: Colors.blue,
-    );
-    Timer(Duration(seconds: 2), () {
-      Get.back();
-    });
+        title: "Error!",
+        backgroundColor: Colors.white,
+        radius: 5,
+        middleTextStyle: const TextStyle(fontSize: 18),
+        middleText: 'Code Error: $code\nReason: $reason',
+        textConfirm: 'Yes',
+        buttonColor: Colors.amber,
+        confirmTextColor: Colors.black26,
+        onConfirm: () => Get.back());
   }
 
-
   Future<void> SubmitName(String name) async {
-    if (NameController.text.isEmpty) {
-      WaringMessage = 'Name box cannot be empty!';
-      Timer.periodic(const Duration(seconds: 3), (timer) {
-        setState(() {
-          WaringMessage = '';
-          timer.cancel();
-        });
-      });
-    }else {
-      Map map = {'doorName': name};
-      var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
-          body: json.encode(map));
-      var Data = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode == 200) {
-        //Door created
-        Get.offNamed(Routes.DoorScan, arguments: Data);
-      } else {
-        ErrorMessage(Data['code'], Data['reason']);
-      }
+    Map map = {'doorName': name};
+    var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
+        body: json.encode(map));
+    var Data = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 200) {
+      //Door created
+      Get.offNamed(Routes.DoorScan, arguments: Data);
+    } else {
+      ErrorMessage(Data['code'], Data['reason']);
     }
   }
 
@@ -98,7 +87,7 @@ class _SignUpState extends State<SignUp> {
                         child: Text(
                           'Please give your new door a Name.',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w700),
+                              fontSize: 18, fontWeight: FontWeight.w700),
                         ),
                       ),
                       SizedBox(
@@ -109,7 +98,7 @@ class _SignUpState extends State<SignUp> {
                         child: Text(
                           'Note: Door Name cannot exceed 50 characters.',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: Colors.black),
                         ),
@@ -119,7 +108,6 @@ class _SignUpState extends State<SignUp> {
                       ),
                       TextField(
                         controller: NameController,
-                        keyboardType: TextInputType.none,
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                           fillColor: Colors.grey.shade100,
@@ -136,67 +124,67 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                       ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        height: 40,
-                        child: Text(
-                          WaringMessage != '' ? 'Warning : $WaringMessage' : '',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 222, 136, 116),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700),
-                        ),
+                      SizedBox(
+                        height: 20,
                       ),
-                      Container(
-                        margin: EdgeInsets.only(left: 190),
-                        decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 200, 241, 233),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: TextButton(
-                            onPressed: () {
+                      OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            fixedSize: const Size(250, 70),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 20),
+                            side: const BorderSide(
+                                width: 2,
+                                color: Color.fromARGB(255, 89, 92, 93)),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: Row(
+                            // ignore: prefer_const_literals_to_create_immutables
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Sign up',
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 27,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.grey[700],
+                                  child: Icon(
+                                    color: Colors.white,
+                                    Icons.arrow_forward,
+                                  )),
+                            ],
+                          ),
+                          onPressed: () {
+                            if (NameController.text.isEmpty) {
+                              ErrorMessage('001', 'Name space cannot be empty');
+                            } else if (NameController.text.length > 50) {
+                              ErrorMessage('002',
+                                  'Name space cannot exceed more than 50 chars.');
+                            } else
                               SubmitName(NameController.text);
-                            },
-                            child: Row(
-                              // ignore: prefer_const_literals_to_create_immutables
-                              children: [
-                                Text(
-                                  'Sign up',
-                                  style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 27,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: Colors.grey[700],
-                                    child: Icon(
-                                      color: Colors.white,
-                                      Icons.arrow_forward,
-                                    )),
-                              ],
-                            )),
+                          }),
+                      SizedBox(
+                        height: 10,
                       ),
-                      TextButton(
-                        child: Text(
-                          'GotoDoor',
-                          style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 27,
-                              fontWeight: FontWeight.w700),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          fixedSize: const Size(150, 50),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 20),
+                          side: const BorderSide(
+                              width: 2, color: Color.fromARGB(255, 89, 92, 93)),
+                          backgroundColor: Colors.white,
                         ),
-                        onPressed: () {
-                          Get.offNamed(Routes.NavBar,
-                              arguments: ConvertData(NameController.text));
-                        },
-                      ),
-                      TextButton(
                         child: Text(
                           'SetPortIp',
                           style: TextStyle(
-                              color: Colors.grey[700],
+                              color: Colors.black54,
                               fontSize: 20,
                               fontWeight: FontWeight.w700),
                         ),
@@ -212,7 +200,8 @@ class _SignUpState extends State<SignUp> {
                                   controller: IpController,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(RegExp("[0-9.]"))
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp("[0-9.]"))
                                   ],
                                   style: TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
@@ -235,7 +224,7 @@ class _SignUpState extends State<SignUp> {
                                 ),
                                 TextField(
                                   controller: PortController,
-                                  keyboardType : TextInputType.number,
+                                  keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
@@ -264,11 +253,25 @@ class _SignUpState extends State<SignUp> {
                                         fontWeight: FontWeight.w700),
                                   ),
                                   onPressed: () {
-                                    door.SetURL(IpController.text, PortController.text);
+                                    door.SetURL(
+                                        IpController.text, PortController.text);
                                     Get.back();
                                   },
                                 )
                               ]));
+                        },
+                      ),
+                      TextButton(
+                        child: Text(
+                          'GotoDoor(No http)',
+                          style: TextStyle(
+                              color: Colors.black26,
+                              fontSize: 27,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        onPressed: () {
+                          Get.offNamed(Routes.NavBar,
+                              arguments: ConvertData(NameController.text));
                         },
                       ),
                     ],

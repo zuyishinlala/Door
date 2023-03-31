@@ -1,10 +1,12 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:door/Record.dart';
 
 class RecordBlock extends StatelessWidget {
   final Record record;
   final bool ShowDate;
-  RecordBlock({required this.record, required this.ShowDate});
+  const RecordBlock({required this.record, required this.ShowDate});
   @override
   Widget build(BuildContext context) { 
     return Container(
@@ -16,7 +18,7 @@ class RecordBlock extends StatelessWidget {
               margin: EdgeInsets.only(left: 10),
               alignment: Alignment.centerLeft,
               child: Text(
-                '${record.Date}',
+                record.Date,
                 style: TextStyle(
                   color : Color.fromARGB(255, 187, 165, 100),
                   fontSize: 25,
@@ -40,12 +42,14 @@ class RecordBlock extends StatelessWidget {
                       style: TextStyle(
                           color: Colors.grey[10],
                           fontSize: 20,
-                          fontWeight: FontWeight.w700)),
-                  Text('${record.Time}',
+                          fontWeight: FontWeight.w700)
+                  ),
+                  Text(record.Time,
                       style: TextStyle(
                           color: Colors.grey[10],
                           fontSize: 15,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: FontWeight.w700)
+                  ),
                 ],
               )
             )

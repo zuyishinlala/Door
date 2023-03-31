@@ -26,7 +26,6 @@ class ShowNamePage extends StatelessWidget {
   }
 
   Future<void> DeleteDoorRequest() async {
-    print('Ya');
     var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
         body: door.DoorRequest());
     if (response.statusCode == 200) {
@@ -37,7 +36,6 @@ class ShowNamePage extends StatelessWidget {
       var Data = jsonDecode(response.body);
       ErrorMessage(Data["code"], Data["reason"]);
     }
-    print('end');
   }
 
   @override
@@ -55,7 +53,7 @@ class ShowNamePage extends StatelessWidget {
         },
       ),
       Text(
-        '${door.Name.value}',
+        'Door Name:${door.Name.value}',
         style: TextStyle(
             color: Colors.grey[700], fontSize: 20, fontWeight: FontWeight.w700),
       ),
@@ -125,7 +123,6 @@ class ShowNamePage extends StatelessWidget {
               onConfirm: () => DeleteDoorRequest());
         },
       ),
-      Text(door.serverAdd),
     ]));
   }
 }

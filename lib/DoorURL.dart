@@ -2,7 +2,7 @@
 
 part of 'main.dart';
 
-class DoorURL {
+abstract class DoorURL {
   static const create = '/createDoor';
   static const delete = '/deleteDoor';
   static const update = '/updateDoor';
