@@ -12,7 +12,7 @@ class DoorController extends GetxController {
   Uint8List share = Uint8List(0);
   var locked = true.obs;
   List<Record> records = [];
-  String serverAdd = 'http://127.168.0.0.1:8000';
+  String serverAdd = '127.168.0.0.1:8000';
   DoorController() {}
   void SetDoor(Map<String, dynamic> json) {
     Name.value = json["doorName"];
@@ -21,7 +21,7 @@ class DoorController extends GetxController {
   }
 
   void SetURL(String Ip, String port) {
-    serverAdd = 'http://' + Ip + ':' + port;
+    serverAdd =  Ip + ':' + port;
     update();
   }
   

@@ -1,4 +1,6 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, avoid_print, curly_braces_in_flow_control_structures
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -34,15 +36,26 @@ class _SignUpState extends State<SignUp> {
   }
 
   Future<void> SubmitName(String name) async {
-    Map map = {'doorName': name};
-    var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
-        body: json.encode(map));
-    var Data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode == 200) {
-      //Door created
-      Get.offNamed(Routes.DoorScan, arguments: Data);
-    } else {
-      ErrorMessage(Data['code'], Data['reason']);
+    try {
+      print(door.serverAdd);
+      Map map = {'doorName': name};
+      var response = await http.post(Uri.https(door.serverAdd, DoorURL.create),
+          body: json.encode(map));
+      var Data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200) {
+        //Door created
+        Get.offNamed(Routes.DoorScan, arguments: Data);
+      } else {
+        ErrorMessage(Data['code'], Data['reason']);
+      }
+    } catch (e) {
+      if (e is SocketException) {
+        print("Socket exception: ${e.toString()}");
+      } else if (e is TimeoutException) {
+        print("Timeout exception: ${e.toString()}");
+      } else {
+        print("Unhandled exception: ${e.toString()}");
+      }
     }
   }
 
@@ -260,6 +273,9 @@ class _SignUpState extends State<SignUp> {
                                 )
                               ]));
                         },
+                      ),
+                      SizedBox(
+                        height: 10,
                       ),
                       TextButton(
                         child: Text(

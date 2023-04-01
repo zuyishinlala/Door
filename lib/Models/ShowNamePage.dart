@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_brace_in_string_interps
+// ignore_for_file: unnecessary_brace_in_string_interps, non_constant_identifier_names, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
@@ -10,31 +10,44 @@ import 'package:http/http.dart' as http;
 import 'package:door/main.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 class ShowNamePage extends StatelessWidget {
   late DoorController door = Get.find<DoorController>();
+
+  ShowNamePage({super.key});
   void ErrorMessage(String code, String reason) {
     Get.defaultDialog(
       radius: 5,
       middleText: 'Code Error: ${code}\nReason: ${reason}',
-      middleTextStyle: TextStyle(fontSize: 15),
+      middleTextStyle: const TextStyle(fontSize: 15),
       backgroundColor: Colors.white10,
     );
-    Timer(Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 1), () {
       Get.back();
     });
   }
 
   Future<void> DeleteDoorRequest() async {
-    var response = await http.post(Uri.http(door.serverAdd, DoorURL.create),
-        body: door.DoorRequest());
-    if (response.statusCode == 200) {
-      Timer(Duration(seconds: 2), () {
-        Get.offNamed(Routes.SignUp);
-      });
-    } else {
-      var Data = jsonDecode(response.body);
-      ErrorMessage(Data["code"], Data["reason"]);
+    try {
+      var response = await http.post(Uri.https(door.serverAdd, DoorURL.create),
+          body: door.DoorRequest());
+      if (response.statusCode == 200) {
+        Timer(const Duration(seconds: 2), () {
+          Get.offNamed(Routes.SignUp);
+        });
+      } else {
+        var Data = jsonDecode(response.body);
+        ErrorMessage(Data["code"], Data["reason"]);
+      }
+    } catch (e) {
+      if (e is SocketException) {
+        print("Socket exception: ${e.toString()}");
+      } else if (e is TimeoutException) {
+        print("Timeout exception: ${e.toString()}");
+      } else {
+        print("Unhandled exception: ${e.toString()}");
+      }
     }
   }
 
