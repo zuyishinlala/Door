@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names
+// ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names, file_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,6 +11,8 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:intl/intl.dart';
+import 'package:door/Record.dart';
 
 class DoorScanPage extends StatefulWidget {
   const DoorScanPage({Key? key}) : super(key: key);
@@ -21,7 +23,6 @@ class DoorScanPage extends StatefulWidget {
 class _DoorScanPageState extends State<DoorScanPage> {
   late DoorController door = Get.find<DoorController>();
   late Timer _timer;
-  // bool _locked = true;
 
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
@@ -49,43 +50,62 @@ class _DoorScanPageState extends State<DoorScanPage> {
     super.dispose();
   }
 
-  bool isCorrectKey(Uint8List xorUserShare) {
-    if (xorUserShare.length != 200) return false;
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      if (door.locked && scanData.code != null) {
+        Uint8List xorUserShare = base64Decode(scanData.code!);
+        Random random = Random(currentSeed);
+        for (int i = 0; i < 200; i++) {
+          xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
+        }
+        Uint8List UserShare = door.TransformShareData(xorUserShare);
+        if (isCorrectKey(UserShare)) {
+          String name = GetUserName(UserShare);
+          String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
+          String time = DateFormat("HH:mm:ss").format(DateTime.now());
+          door.insertRecord(Record(name, date, time));
+          door.unlocked();
+        }
+      }
+    });
+  }
+
+  bool isCorrectKey(Uint8List UserShare) {
+    assert(UserShare.length == 400);
     Uint8List DoorShare = door.getShare();
     Uint8List Secret = door.getSecret();
-    Random random = Random(currentSeed);
-    for (int i = 0 ; i < 200 ; i++) {
-      xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
-    }
-    Uint8List UserShare = door.TransformShareData(xorUserShare);
     for (int i = 0; i < 400; ++i) {
       var tmp = UserShare[i] | DoorShare[i];
       var count = 0;
       for (int shift = 0; shift < 4; ++shift) {
         if ((tmp >> shift & 1) == 1) ++count;
       }
-      if (!((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1))) {
-        return false;
-      }
+      assert((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1));
     }
     return true;
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      if (door.locked &&
-          scanData.code != null &&
-          isCorrectKey(base64Decode(scanData.code!))) {
-          door.unlocked();
+  String GetUserName(Uint8List UserShare) {
+    Uint8List UserName = Uint8List(50);
+    String ret = '';
+    for (int i = 0; i < 400; ++i) {
+      var UserSubpixelCount = 0;
+      for (int u = 0; u < 4; ++u) {
+        if ((UserShare[i] >> u & 1) == 1) ++UserSubpixelCount;
       }
-    });
+      assert(UserSubpixelCount == 2 || UserSubpixelCount == 3);
+      UserName[i ~/ 8] |= (UserSubpixelCount == 2 ? 0 : 1) << (i % 8);
+    }
+    for (int i = 0; i < 50; ++i) {
+      ret += String.fromCharCode(UserShare[i]);
+    }
+    return ret;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(children: [
+    return Column(children: [
       GetBuilder<DoorController>(
         id: 'AppBar',
         builder: (door) {
@@ -95,12 +115,16 @@ class _DoorScanPageState extends State<DoorScanPage> {
           );
         },
       ),
+      const SizedBox(
+        height: 10,
+      ),
       const Text('Scan the QrCode below if you want to open the door.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Color.fromARGB(255, 208, 157, 6),
-              fontSize: 20,
-              fontWeight: FontWeight.w800)),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            color: Color.fromARGB(255, 208, 157, 6),
+            fontSize: 20,
+            fontWeight: FontWeight.w800)
+      ),
       Container(
         height: 300,
         width: 300,
@@ -115,20 +139,20 @@ class _DoorScanPageState extends State<DoorScanPage> {
       ),
       Expanded(
         child: QRView(
-          key: qrKey,
-          cameraFacing: CameraFacing.front,
-          onQRViewCreated: _onQRViewCreated,
-          overlay: QrScannerOverlayShape(
-            // full screen
-            borderColor: Theme.of(context).primaryColor,
-            borderRadius: 0,
-            borderLength: 0,
-            borderWidth: 0,
-            cutOutWidth: MediaQuery.of(context).size.width,
-            cutOutHeight: MediaQuery.of(context).size.height,
-          ),
+        key: qrKey,
+        cameraFacing: CameraFacing.front,
+        onQRViewCreated: _onQRViewCreated,
+        overlay: QrScannerOverlayShape(
+          // full screen
+          borderColor: Theme.of(context).primaryColor,
+          borderRadius: 0,
+          borderLength: 0,
+          borderWidth: 0,
+          cutOutWidth: MediaQuery.of(context).size.width,
+          cutOutHeight: MediaQuery.of(context).size.height,
+        ),
         ),
       ),
-    ]));
+    ]);
   }
 }

@@ -23,7 +23,7 @@ class DoorController extends GetxController {
     serverAdd = Ip + ':' + port;
     update();
   }
-  
+
   unlocked() {
     locked = false;
     Timer.periodic(const Duration(seconds: 5), (timer) {
@@ -52,7 +52,7 @@ class DoorController extends GetxController {
     var buffer = data
         .map((e) {
           final tmp = List.filled(8, 0);
-          for (int idx = 0; idx < 8; idx++) {
+          for (int idx = 0; idx < 8 ; idx++) {
             tmp[idx] = (e >> idx) & 1;
           }
           return tmp;
@@ -75,7 +75,7 @@ class DoorController extends GetxController {
     String base64encodedSecret = base64Encode(SecretBuffer);
     Map map = {
       "secret": base64encodedSecret,
-      "doorName": _Name,
+      "doorName": _Name.value,
     };
     return json.encode(map);
   }

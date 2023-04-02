@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, avoid_print, curly_braces_in_flow_control_structures
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, avoid_print, curly_braces_in_flow_control_structures, file_names
 
 import 'dart:io';
 
@@ -22,6 +22,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController IpController = TextEditingController();
   TextEditingController PortController = TextEditingController();
   late DoorController door = Get.find<DoorController>();
+
   void ErrorMessage(String code, String reason) {
     Get.defaultDialog(
         title: "Error!",

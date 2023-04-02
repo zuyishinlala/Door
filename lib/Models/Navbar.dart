@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,16 +38,16 @@ class _NavBarState extends State<NavBar> {
         body: SafeArea(
             child: IndexedStack(
                 index: controller.Tabindex,
-                children: [const DoorScanPage(), RecordPage(), ShowNamePage()])),
+                children: [DoorScanPage(), RecordPage(), ShowNamePage()])),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: controller.Tabindex,
             onTap: controller.ChangeTabIndex,
             selectedItemColor: Colors.amber,
             unselectedItemColor: Colors.grey.shade200,
             items: [
-              bottomBarItem(IconlyBold.home, 'Home'),
+              bottomBarItem(IconlyBold.camera, 'Scanning'),
               bottomBarItem(IconlyBold.document, 'Record'),
-              bottomBarItem(IconlyBold.discovery, 'DoorName')
+              bottomBarItem(IconlyBold.home, 'About')
             ]),
       );
     });
