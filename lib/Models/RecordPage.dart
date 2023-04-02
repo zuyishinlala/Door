@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:door/Models/DoorRunning_controller.dart';
 import 'package:get/get.dart';
@@ -6,7 +8,7 @@ import 'package:door/Record.dart';
 
 class RecordPage extends StatefulWidget {
   @override
-  RecordPageState createState() => new RecordPageState();
+  RecordPageState createState() => RecordPageState();
 }
 
 class RecordPageState extends State<RecordPage> {
@@ -48,13 +50,13 @@ class RecordPageState extends State<RecordPage> {
               builder: (door) {
                 return AppBar(
                   backgroundColor:
-                      door.locked.value ? Colors.red[400] : Colors.green[400],
-                  title: Text('Record Page'),
+                      door.locked ? Colors.red[400] : Colors.green[400],
+                  title: const Text('Record Page'),
                 );
               },
             ),
-            SizedBox(height:  10,),
-            door.getRecord().length == 0
+            const SizedBox(height:  10,),
+            door.getRecord().isEmpty
             ? Container(
                 child: Text(
                     'Currently, there are no door-opening records',

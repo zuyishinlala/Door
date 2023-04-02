@@ -6,12 +6,12 @@ import 'package:door/Record.dart';
 class RecordBlock extends StatelessWidget {
   final Record record;
   final bool ShowDate;
-  const RecordBlock({required this.record, required this.ShowDate});
+  const RecordBlock({super.key, required this.record, required this.ShowDate});
   @override
   Widget build(BuildContext context) { 
     return Container(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ShowDate == true ? 
             Container(

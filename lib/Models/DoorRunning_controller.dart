@@ -7,28 +7,27 @@ import 'dart:async';
 import 'package:door/Record.dart';
 
 class DoorController extends GetxController {
-  Rx<String> Name = ''.obs;
+  final Rx<String> _Name = ''.obs;
   Uint8List secret = Uint8List(0);
   Uint8List share = Uint8List(0);
-  var locked = true.obs;
+  var locked = true;
   List<Record> records = [];
   String serverAdd = '127.168.0.0.1:8000';
-  DoorController() {}
   void SetDoor(Map<String, dynamic> json) {
-    Name.value = json["doorName"];
+    Name(json["doorName"]);
     share = TransformShareData(base64Decode(json["doorShare"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
 
   void SetURL(String Ip, String port) {
-    serverAdd =  Ip + ':' + port;
+    serverAdd = Ip + ':' + port;
     update();
   }
   
   unlocked() {
-    locked.value = false;
+    locked = false;
     Timer.periodic(const Duration(seconds: 5), (timer) {
-      locked.value = true;
+      locked = true;
       update(['AppBar']);
       timer.cancel();
     });
@@ -76,7 +75,7 @@ class DoorController extends GetxController {
     String base64encodedSecret = base64Encode(SecretBuffer);
     Map map = {
       "secret": base64encodedSecret,
-      "doorName": Name.value,
+      "doorName": _Name,
     };
     return json.encode(map);
   }
@@ -89,4 +88,6 @@ class DoorController extends GetxController {
   Uint8List getSecret() => secret;
   List<Record> getRecord() => records;
   int getRecordLen() => records.length;
+  set Name(value) => _Name.value = value;
+  get Name => _Name;
 }

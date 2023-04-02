@@ -12,10 +12,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-class ShowNamePage extends StatelessWidget {
+class ShowNamePage extends StatefulWidget {
+
+  const ShowNamePage({super.key});
+
+  @override
+  State<ShowNamePage> createState() => _ShowNamePageState();
+}
+
+class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
 
-  ShowNamePage({super.key});
   void ErrorMessage(String code, String reason) {
     Get.defaultDialog(
       radius: 5,
@@ -60,13 +67,13 @@ class ShowNamePage extends StatelessWidget {
         builder: (door) {
           return AppBar(
             backgroundColor:
-                door.locked.value ? Colors.red[400] : Colors.green[400],
-            title: Text('Name Page'),
+                door.locked ? Colors.red[400] : Colors.green[400],
+            title: const Text('Name Page'),
           );
         },
       ),
       Text(
-        'Door Name:${door.Name.value}',
+        'Door Name: ${door.Name}',
         style: TextStyle(
             color: Colors.grey[700], fontSize: 20, fontWeight: FontWeight.w700),
       ),

@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -30,17 +30,9 @@ class _DoorScanPageState extends State<DoorScanPage> {
   @override
   void initState() {
     super.initState();
-    //getData();
     seedRefresh();
     _timer =
         Timer.periodic(const Duration(seconds: 60), (Timer t) => seedRefresh());
-  }
-
-  Future<void> getData() async {
-    final map = await Get.arguments;
-    setState(() {
-      door.SetDoor(map);
-    });
   }
 
   void seedRefresh() {
@@ -58,10 +50,11 @@ class _DoorScanPageState extends State<DoorScanPage> {
   }
 
   bool isCorrectKey(Uint8List xorUserShare) {
+    if (xorUserShare.length != 200) return false;
     Uint8List DoorShare = door.getShare();
     Uint8List Secret = door.getSecret();
     Random random = Random(currentSeed);
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0 ; i < 200 ; i++) {
       xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
     }
     Uint8List UserShare = door.TransformShareData(xorUserShare);
@@ -71,8 +64,9 @@ class _DoorScanPageState extends State<DoorScanPage> {
       for (int shift = 0; shift < 4; ++shift) {
         if ((tmp >> shift & 1) == 1) ++count;
       }
-      if (!((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1)))
+      if (!((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1))) {
         return false;
+      }
     }
     return true;
   }
@@ -80,18 +74,10 @@ class _DoorScanPageState extends State<DoorScanPage> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (door.locked.value &&
+      if (door.locked &&
           scanData.code != null &&
           isCorrectKey(base64Decode(scanData.code!))) {
-        setState(() {
-          door.locked.value = false;
-        });
-        Timer.periodic(const Duration(seconds: 3), (timer) {
-          setState(() {
-            door.locked.value = true;
-            timer.cancel();
-          });
-        });
+          door.unlocked();
       }
     });
   }
@@ -104,13 +90,12 @@ class _DoorScanPageState extends State<DoorScanPage> {
         id: 'AppBar',
         builder: (door) {
           return AppBar(
-            backgroundColor:
-                door.locked.value ? Colors.red[400] : Colors.green[400],
-            title: Text(door.locked.value ? 'Locked' : 'Pass!'),
+            backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
+            title: Text(door.locked ? 'Locked' : 'Pass!'),
           );
         },
       ),
-      Text('Scan the QrCode below if you want to open the door.',
+      const Text('Scan the QrCode below if you want to open the door.',
           textAlign: TextAlign.center,
           style: TextStyle(
               color: Color.fromARGB(255, 208, 157, 6),
@@ -122,7 +107,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
         padding: const EdgeInsets.all(8),
         child: Center(
           child: QrImage(
-            data: "d=${door.Name.value}&s=$currentSeed",
+            data: "d=${door.Name}&s=$currentSeed",
             version: 10,
             errorCorrectionLevel: QrErrorCorrectLevel.L,
           ),

@@ -41,9 +41,10 @@ class _SignUpState extends State<SignUp> {
       Map map = {'doorName': name};
       var response = await http.post(Uri.https(door.serverAdd, DoorURL.create),
           body: json.encode(map));
-      var Data = jsonDecode(response.body) as Map<String, dynamic>;
+      Map<String, dynamic> Data = jsonDecode(response.body);
       if (response.statusCode == 200) {
         //Door created
+        print('had http');
         Get.offNamed(Routes.DoorScan, arguments: Data);
       } else {
         ErrorMessage(Data['code'], Data['reason']);
@@ -56,13 +57,18 @@ class _SignUpState extends State<SignUp> {
       } else {
         print("Unhandled exception: ${e.toString()}");
       }
+      print('No http');
+      Get.offNamed(Routes.NavBar, arguments: ConvertData(name));
     }
   }
 
   Map<String, dynamic> ConvertData(String name) {
     var Share = base64Encode(Uint8List.fromList(List.filled(1, 165)));
     var Secret = base64Encode(Uint8List.fromList(List.filled(1, 30)));
-    return {"secret": Secret, "doorShare": Share, "doorName": name};
+    Map mp = {"secret": Secret, "doorShare": Share, "doorName": name};
+    String encodedmp = json.encode(mp);
+    Map<String, dynamic> ret = jsonDecode(encodedmp);
+    return ret;
   }
 
   @override
@@ -272,22 +278,6 @@ class _SignUpState extends State<SignUp> {
                                   },
                                 )
                               ]));
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextButton(
-                        child: Text(
-                          'GotoDoor(No http)',
-                          style: TextStyle(
-                              color: Colors.black26,
-                              fontSize: 27,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        onPressed: () {
-                          Get.offNamed(Routes.NavBar,
-                              arguments: ConvertData(NameController.text));
                         },
                       ),
                     ],
