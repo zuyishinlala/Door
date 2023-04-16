@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:door/main.dart';
-import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
 import 'package:flutter/services.dart';
 
 class SignUp extends StatefulWidget {

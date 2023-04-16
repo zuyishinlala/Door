@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:door/Models/NavBar_controller.dart';
-import 'package:door/Models/DoorScanPage.dart';
-import 'package:door/Models/ShowNamePage.dart';
-import 'package:door/Models/RecordPage.dart';
-import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:door/Models/Navigator/NavBar_controller.dart';
+import 'package:door/Models/DoorRunningPages/DoorScanPage.dart';
+import 'package:door/Models/DoorRunningPages/ShowNamePage.dart';
+import 'package:door/Models/DoorRunningPages/RecordPage.dart';
+import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
 class NavBar extends StatefulWidget {

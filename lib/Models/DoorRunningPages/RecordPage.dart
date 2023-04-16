@@ -1,10 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
 import 'package:get/get.dart';
-import 'package:door/RecordBlock.dart';
-import 'package:door/Record.dart';
+import 'package:door/Models/DoorRunningPages/RecordBlocks/RecordBlock.dart';
+import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
 
 class RecordPage extends StatefulWidget {
   const RecordPage({super.key});

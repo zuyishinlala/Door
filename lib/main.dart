@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:door/Models/SignUp.dart';
+import 'package:door/Models/SignUpPage.dart';
 import 'package:get/get.dart';
-import 'package:door/Models/DoorScanPage.dart';
-import 'package:door/Models/RecordPage.dart';
-import 'package:door/Models/ShowNamePage.dart';
-import 'package:door/Models/DoorRunning_binding.dart';
-import 'package:door/Models/Navbar.dart';
+import 'package:door/Models/DoorRunningPages/DoorScanPage.dart';
+import 'package:door/Models/DoorRunningPages/RecordPage.dart';
+import 'package:door/Models/DoorRunningPages/ShowNamePage.dart';
+import 'package:door/Models/DoorRunningPages/DoorRunning_binding.dart';
+import 'package:door/Models/Navigator/Navbar.dart';
 // ==========main==========
 part 'app_routes.dart';
 part 'DoorURL.dart';

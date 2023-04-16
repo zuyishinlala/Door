@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:door/Record.dart';
+import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
 
 class DoorController extends GetxController {
   final Rx<String> _Name = ''.obs;

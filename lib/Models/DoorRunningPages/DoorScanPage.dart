@@ -10,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
-import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
 import 'package:intl/intl.dart';
-import 'package:door/Record.dart';
+import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
 
 class DoorScanPage extends StatefulWidget {
   const DoorScanPage({Key? key}) : super(key: key);

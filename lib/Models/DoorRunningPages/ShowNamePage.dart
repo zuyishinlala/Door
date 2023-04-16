@@ -1,11 +1,11 @@
 // ignore_for_file: unnecessary_brace_in_string_interps, non_constant_identifier_names, avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:door/Models/DoorRunning_controller.dart';
+import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:door/Record.dart';
+import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
 import 'package:http/http.dart' as http;
 import 'package:door/main.dart';
 import 'dart:async';
