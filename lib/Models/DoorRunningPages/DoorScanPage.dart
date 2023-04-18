@@ -11,8 +11,6 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
 import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
-import 'package:intl/intl.dart';
-import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
 
 class DoorScanPage extends StatefulWidget {
   const DoorScanPage({Key? key}) : super(key: key);
@@ -59,13 +57,16 @@ class _DoorScanPageState extends State<DoorScanPage> {
         for (int i = 0; i < 200; i++) {
           xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
         }
-        Uint8List UserShare = door.TransformShareData(xorUserShare);
+        Uint8List UserShare = door.TransformShareData(xorUserShare); // 400
+        String Username = GetUserName(UserShare);
+        /*
+        if(isblacklist()){
+        }else{
+        }
+        */
         if (isCorrectKey(UserShare)) {
-          String name = GetUserName(UserShare);
-          String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
-          String time = DateFormat("HH:mm:ss").format(DateTime.now());
-          door.insertRecord(Record(name, date, time));
-          door.unlocked();
+          door.insertTempRecord(Username);
+          door.unlock();
         }
       }
     });
@@ -119,12 +120,11 @@ class _DoorScanPageState extends State<DoorScanPage> {
         height: 10,
       ),
       const Text('Scan the QrCode below if you want to open the door.',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-            color: Color.fromARGB(255, 208, 157, 6),
-            fontSize: 20,
-            fontWeight: FontWeight.w800)
-      ),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: Color.fromARGB(255, 208, 157, 6),
+              fontSize: 20,
+              fontWeight: FontWeight.w800)),
       Container(
         height: 300,
         width: 300,
@@ -139,18 +139,18 @@ class _DoorScanPageState extends State<DoorScanPage> {
       ),
       Expanded(
         child: QRView(
-        key: qrKey,
-        cameraFacing: CameraFacing.front,
-        onQRViewCreated: _onQRViewCreated,
-        overlay: QrScannerOverlayShape(
-          // full screen
-          borderColor: Theme.of(context).primaryColor,
-          borderRadius: 0,
-          borderLength: 0,
-          borderWidth: 0,
-          cutOutWidth: MediaQuery.of(context).size.width,
-          cutOutHeight: MediaQuery.of(context).size.height,
-        ),
+          key: qrKey,
+          cameraFacing: CameraFacing.front,
+          onQRViewCreated: _onQRViewCreated,
+          overlay: QrScannerOverlayShape(
+            // full screen
+            borderColor: Theme.of(context).primaryColor,
+            borderRadius: 0,
+            borderLength: 0,
+            borderWidth: 0,
+            cutOutWidth: MediaQuery.of(context).size.width,
+            cutOutHeight: MediaQuery.of(context).size.height,
+          ),
         ),
       ),
     ]);

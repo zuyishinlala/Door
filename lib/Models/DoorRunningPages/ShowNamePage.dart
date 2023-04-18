@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
 import 'package:http/http.dart' as http;
 import 'package:door/main.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 
 class ShowNamePage extends StatefulWidget {
   const ShowNamePage({super.key});
@@ -108,70 +107,74 @@ class _ShowNamePageState extends State<ShowNamePage> {
   Widget build(BuildContext context) {
     return Column(children: [
       GetBuilder<DoorController>(
-    id: 'AppBar',
-    builder: (door) {
-      return AppBar(
-        backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
-        title: const Text('Name Page'),
-      );
-    },
+        id: 'AppBar',
+        builder: (door) {
+          return AppBar(
+            backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
+            title: const Text('Name Page'),
+          );
+        },
       ),
-      const SizedBox(height: 10,),
-      Container(
-    alignment: Alignment.bottomCenter,
-    child: Text(
-      'Door Name: ${door.Name}',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 25,
-          fontWeight: FontWeight.w700),
-    ),
+      const SizedBox(
+        height: 10,
       ),
       Container(
-    height: 300,
-    width: 300,
-    padding: const EdgeInsets.all(8),
-    child: Center(
-      child: QrImage(
-        data: door.Name.value,
-        version: 10,
-        errorCorrectionLevel: QrErrorCorrectLevel.L,
+        alignment: Alignment.bottomCenter,
+        child: Text(
+          'Door Name: ${door.Name}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 25,
+              fontWeight: FontWeight.w700),
+        ),
       ),
-    ),
+      Container(
+        height: 300,
+        width: 300,
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: QrImage(
+            data: door.Name.value,
+            version: 10,
+            errorCorrectionLevel: QrErrorCorrectLevel.L,
+          ),
+        ),
       ),
       TextButton(
-    child: Text(
-      'unlock',
-      style: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 27,
-          fontWeight: FontWeight.w700),
-    ),
-    onPressed: () {
-      door.unlocked();
-    },
+        child: Text(
+          'unlock',
+          style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 27,
+              fontWeight: FontWeight.w700),
+        ),
+        onPressed: () {
+          door.unlock();
+        },
       ),
       TextButton(
-    child: Text(
-      'add Record',
-      style: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 27,
-          fontWeight: FontWeight.w700),
-    ),
-    onPressed: () {
-      String Name = 'Daniel';
-      String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
-      String time = DateFormat("HH:mm:ss").format(DateTime.now());
-      door.insertRecord(Record(Name, date, time));
-    },
+        child: Text(
+          'add Record',
+          style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 27,
+              fontWeight: FontWeight.w700),
+        ),
+        onPressed: () {
+          String Name = 'Daniel';
+          door.insertTempRecord(Name);
+        },
       ),
       const Spacer(),
       IconOutlineButton('Delete'),
-      const SizedBox(height: 10,),
+      const SizedBox(
+        height: 10,
+      ),
       IconOutlineButton('Update'),
-      const SizedBox(height: 20,),
+      const SizedBox(
+        height: 20,
+      ),
     ]);
   }
 }

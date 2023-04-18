@@ -5,13 +5,24 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
+import 'package:intl/intl.dart';
+
+List<Record> l = [
+  Record('Daniel', '11:34:50'),
+  Record('Daniel', '09:34:56'),
+  Record('Daniel', '06:31:18'),
+];
 
 class DoorController extends GetxController {
   final Rx<String> _Name = ''.obs;
   Uint8List secret = Uint8List(0);
   Uint8List share = Uint8List(0);
   var locked = true;
-  List<Record> records = [];
+  Map<String, List<Record>> Maprecords = {
+    'April-15 2023': l,
+    'March-15 2023': l,
+    'April-18 2023': l
+  };
   String serverAdd = '127.168.0.0.1:8000';
   void SetDoor(Map<String, dynamic> json) {
     Name(json["doorName"]);
@@ -21,10 +32,9 @@ class DoorController extends GetxController {
 
   void SetURL(String Ip, String port) {
     serverAdd = Ip + ':' + port;
-    update();
   }
 
-  unlocked() {
+  unlock() {
     locked = false;
     Timer.periodic(const Duration(seconds: 5), (timer) {
       locked = true;
@@ -33,7 +43,7 @@ class DoorController extends GetxController {
     });
     update(['AppBar']);
   }
-
+  
   Uint8List TransformShareData(Uint8List data) {
     var buffer = data
         .map((e) {
@@ -52,7 +62,7 @@ class DoorController extends GetxController {
     var buffer = data
         .map((e) {
           final tmp = List.filled(8, 0);
-          for (int idx = 0; idx < 8 ; idx++) {
+          for (int idx = 0; idx < 8; idx++) {
             tmp[idx] = (e >> idx) & 1;
           }
           return tmp;
@@ -80,14 +90,19 @@ class DoorController extends GetxController {
     return json.encode(map);
   }
 
-  void insertRecord(Record newRecord) {
-    records.insert(0, newRecord);
+  void insertTempRecord(String Name) {
+    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+    Record record = Record(Name, time);
+    if (Maprecords[date] != null) {
+      Maprecords[date]?.insert(0, record);
+    } else {
+      Maprecords[date] = [record];
+    }
   }
 
   Uint8List getShare() => share;
   Uint8List getSecret() => secret;
-  List<Record> getRecord() => records;
-  int getRecordLen() => records.length;
   set Name(value) => _Name.value = value;
   get Name => _Name;
 }
