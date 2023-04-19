@@ -1,12 +1,12 @@
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, file_names, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:door/Models/Navigator/NavBar_controller.dart';
-import 'package:door/Models/DoorRunningPages/DoorScanPage.dart';
-import 'package:door/Models/DoorRunningPages/ShowNamePage.dart';
-import 'package:door/Models/DoorRunningPages/RecordPage.dart';
-import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
+import 'package:door/Navigator/NavBar_controller.dart';
+import 'package:door/Pages/NavPage/DoorScanPage.dart';
+import 'package:door/Pages/NavPage/ShowNamePage.dart';
+import 'package:door/Pages/NavPage/RecordPage.dart';
+import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
 class NavBar extends StatefulWidget {

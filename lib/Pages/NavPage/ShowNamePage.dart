@@ -1,15 +1,14 @@
-// ignore_for_file: unnecessary_brace_in_string_interps, non_constant_identifier_names, avoid_print
+// ignore_for_file: unnecessary_brace_in_string_interps, non_constant_identifier_names, avoid_print, file_names
 
 import 'package:flutter/material.dart';
-import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
+import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:http/http.dart' as http;
 import 'package:door/main.dart';
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
+import '../../Https/HttpResponseFormat.dart';
+import '../../PopUpDialog/ErrorDialog.dart';
+import '../../Https/Https.dart';
 
 class ShowNamePage extends StatefulWidget {
   const ShowNamePage({super.key});
@@ -21,51 +20,29 @@ class ShowNamePage extends StatefulWidget {
 class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
   late MediaQueryData queryData = queryData = MediaQuery.of(context);
-
-  void ErrorMessage(String code, String reason) {
-    Get.defaultDialog(
-        radius: 5,
-        middleText: 'Code Error: ${code}\nReason: ${reason}',
-        middleTextStyle: const TextStyle(fontSize: 15),
-        backgroundColor: Colors.white10,
-        textConfirm: 'Yes',
-        buttonColor: Colors.amber,
-        confirmTextColor: Colors.black26,
-        onConfirm: () => Get.back());
+  void update() async {
+    ResponseFormat response =
+        await HttpUpdate(door.serverAdd, door.DoorRequest());
+    if (response.code == 200) {
+      door.UpdateDoor(response.data);
+    } else if (response.code == -1) {
+      ErrorMessage('-1', 'Update with no http connection.');
+    } else {
+      ErrorMessage(response.data['code'], response.data['reason']);
+    }
   }
 
-  Future<void> DoorRequest(String mode) async {
-    try {
-      var response = await http.post(
-          Uri.https(door.serverAdd,
-              mode == 'Delete' ? DoorURL.delete : DoorURL.update),
-          body: door.DoorRequest());
-      var Data = jsonDecode(response.body) as Map<String, dynamic>;
-      if (response.statusCode == 200) {
-        print('${mode} Door,with http');
-        if (mode == 'Delete') {
-          Timer(const Duration(seconds: 2), () {
-            Get.offNamed(Routes.SignUp);
-          });
-        } else {
-          door.UpdateDoor(Data);
-        }
-      } else {
-        ErrorMessage(Data["code"], Data["reason"]);
-      }
-    } catch (e) {
-      if (e is SocketException) {
-        print("Socket exception: ${e.toString()}");
-      } else if (e is TimeoutException) {
-        print("Timeout exception: ${e.toString()}");
-      } else {
-        print("Unhandled exception: ${e.toString()}");
-      }
-      print('${mode} Door,without http');
-      if (mode == 'Delete') {
-        Get.delete<DoorController>(force: true);
-        Get.offNamed(Routes.SignUp);
-      }
+  void delete() async {
+    ResponseFormat response =
+        await HttpDelete(door.serverAdd, door.DoorRequest());
+    if (response.code == 200) {
+      Get.delete<DoorController>(force: true);
+      Get.offNamed(Routes.SignUp);
+    } else if (response.code == -1) {
+      Get.delete<DoorController>(force: true);
+      Get.offNamed(Routes.SignUp);
+    } else {
+      ErrorMessage(response.data['code'], response.data['reason']);
     }
   }
 
@@ -98,7 +75,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
             onCancel: () => Get.back(),
             textConfirm: 'Yes',
             confirmTextColor: Colors.black,
-            onConfirm: () => DoorRequest(mode));
+            onConfirm: () => mode == 'Delete' ? delete() : update());
       },
     );
   }

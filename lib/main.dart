@@ -2,16 +2,15 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:door/Models/SignUpPage.dart';
+import 'package:door/Pages/SignUpPage.dart';
 import 'package:get/get.dart';
-import 'package:door/Models/DoorRunningPages/DoorScanPage.dart';
-import 'package:door/Models/DoorRunningPages/RecordPage.dart';
-import 'package:door/Models/DoorRunningPages/ShowNamePage.dart';
-import 'package:door/Models/DoorRunningPages/DoorRunning_binding.dart';
-import 'package:door/Models/Navigator/Navbar.dart';
+import 'package:door/Pages/NavPage/DoorScanPage.dart';
+import 'package:door/Pages/NavPage/RecordPage.dart';
+import 'package:door/Pages/NavPage/ShowNamePage.dart';
+import 'package:door/DoorController/DoorRunning_binding.dart';
+import 'package:door/Navigator/Navbar.dart';
 // ==========main==========
 part 'app_routes.dart';
-part 'DoorURL.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,14 +27,14 @@ class MyApp extends StatelessWidget {
       ),
       getPages: [
         GetPage(
-            name: _Paths.SignUp, page: () => SignUp(), bindings: [DoorBinding()]),
+            name: Routes.SignUp, page: () => SignUp(), bindings: [DoorBinding()]),
         GetPage(
-            name: _Paths.NavBar, page: () => NavBar(), bindings: [DoorBinding()]),
-        GetPage(name: _Paths.DoorScan, page: () => DoorScanPage()),
-        GetPage(name: _Paths.Record, page: () => RecordPage()),
-        GetPage(name: _Paths.ShowName, page: () => ShowNamePage()),
+            name: Routes.NavBar, page: () => NavBar(), bindings: [DoorBinding()]),
+        GetPage(name: Routes.DoorScan, page: () => DoorScanPage()),
+        GetPage(name: Routes.Record, page: () => RecordPage()),
+        GetPage(name: Routes.ShowName, page: () => ShowNamePage()),
       ],
-      initialRoute: _Paths.SignUp,
+      initialRoute: Routes.SignUp,
     );
   }
 }

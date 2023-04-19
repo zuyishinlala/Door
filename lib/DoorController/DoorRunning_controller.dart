@@ -1,10 +1,10 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings, non_constant_identifier_names
+// ignore_for_file: prefer_interpolation_to_compose_strings, non_constant_identifier_names, file_names
 
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:door/Models/DoorRunningPages/RecordBlocks/Record.dart';
+import 'package:door/Pages/NavPage/RecordBlocks/Record.dart';
 import 'package:intl/intl.dart';
 
 List<Record> l = [
@@ -17,13 +17,15 @@ class DoorController extends GetxController {
   final Rx<String> _Name = ''.obs;
   Uint8List secret = Uint8List(0);
   Uint8List share = Uint8List(0);
+  String serverAdd = '127.168.0.0.1:8000';
   var locked = true;
+
+  // Fake Data
   Map<String, List<Record>> Maprecords = {
     'April-15 2023': l,
     'March-15 2023': l,
     'April-18 2023': l
   };
-  String serverAdd = '127.168.0.0.1:8000';
   void SetDoor(Map<String, dynamic> json) {
     Name(json["doorName"]);
     share = TransformShareData(base64Decode(json["doorShare"]));
@@ -43,7 +45,7 @@ class DoorController extends GetxController {
     });
     update(['AppBar']);
   }
-  
+
   Uint8List TransformShareData(Uint8List data) {
     var buffer = data
         .map((e) {
@@ -77,17 +79,16 @@ class DoorController extends GetxController {
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
 
-  String DoorRequest() {
+  Map<String, dynamic> DoorRequest() {
     var SecretBuffer = Uint8List(50);
     for (int i = 0; i < secret.length; ++i) {
       SecretBuffer[i ~/ 8] |= (secret[i] << (i % 8));
     }
     String base64encodedSecret = base64Encode(SecretBuffer);
-    Map map = {
+    return {
       "secret": base64encodedSecret,
       "doorName": _Name.value,
     };
-    return json.encode(map);
   }
 
   void insertTempRecord(String Name) {

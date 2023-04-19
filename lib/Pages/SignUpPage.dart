@@ -1,15 +1,15 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, avoid_print, curly_braces_in_flow_control_structures, file_names
-
-import 'dart:io';
-
+import 'package:door/Https/Https.dart';
+import 'package:door/Https/HttpResponseFormat.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:door/main.dart';
-import 'package:door/Models/DoorRunningPages/DoorRunning_controller.dart';
+import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:flutter/services.dart';
+
+import '../PopUpDialog/ErrorDialog.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -23,46 +23,18 @@ class _SignUpState extends State<SignUp> {
   TextEditingController PortController = TextEditingController();
   late DoorController door = Get.find<DoorController>();
 
-  void ErrorMessage(String code, String reason) {
-    Get.defaultDialog(
-        title: "Error!",
-        backgroundColor: Colors.white,
-        radius: 5,
-        middleTextStyle: const TextStyle(fontSize: 18),
-        middleText: 'Code Error: $code\nReason: $reason',
-        textConfirm: 'Yes',
-        buttonColor: Colors.amber,
-        confirmTextColor: Colors.black26,
-        onConfirm: () => Get.back());
-  }
-
-  Future<void> SubmitName(String name) async {
-    try {
-      print(door.serverAdd);
-      Map map = {'doorName': name};
-      var response = await http.post(Uri.https(door.serverAdd, DoorURL.create),
-          body: json.encode(map));
-      Map<String, dynamic> Data = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        //Door created
-        print('had http');
-        Get.offNamed(Routes.DoorScan, arguments: Data);
-      } else {
-        ErrorMessage(Data['code'], Data['reason']);
-      }
-    } catch (e) {
-      if (e is SocketException) {
-        print("Socket exception: ${e.toString()}");
-      } else if (e is TimeoutException) {
-        print("Timeout exception: ${e.toString()}");
-      } else {
-        print("Unhandled exception: ${e.toString()}");
-      }
-      print('No http');
+  Future<void> Submit(String name) async {
+    ResponseFormat response = await HttpSubmitName(door.serverAdd, name);
+    if (response.code == 200) {
+      Get.offNamed(Routes.NavBar, arguments: response.data);
+    } else if (response.code == -1) {
       Get.offNamed(Routes.NavBar, arguments: ConvertData(name));
+    } else {
+      ErrorMessage(response.data['code'], response.data['reason']);
     }
   }
 
+  //  ConvertData is only a testing function
   Map<String, dynamic> ConvertData(String name) {
     var Share = base64Encode(Uint8List.fromList(List.filled(1, 165)));
     var Secret = base64Encode(Uint8List.fromList(List.filled(1, 30)));
@@ -187,7 +159,7 @@ class _SignUpState extends State<SignUp> {
                               ErrorMessage('002',
                                   'Name space cannot exceed more than 50 chars.');
                             } else
-                              SubmitName(NameController.text);
+                              Submit(NameController.text);
                           }),
                       SizedBox(
                         height: 10,
