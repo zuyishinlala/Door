@@ -3,15 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Future ErrorDialog(String code, String reason) {
+Future NoHttpDialog(String reason) {
   return Get.defaultDialog(
     radius: 5,
-    middleText: 'Code Error: $code\nReason: $reason',
+    middleText:
+        '(Socket Exception)\nNo http, but still move to next Page...\n',
     middleTextStyle: const TextStyle(fontSize: 18),
     backgroundColor: Colors.white,
-    textConfirm: 'Yes',
-    buttonColor: Colors.amber,
-    confirmTextColor: Colors.black26,
-    onConfirm: () => Get.back()
   );
 }

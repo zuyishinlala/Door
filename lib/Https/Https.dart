@@ -8,7 +8,9 @@ import 'package:http/http.dart' as http;
 import 'HttpResponseFormat.dart';
 import 'DoorURL.dart';
 
-Future<ResponseFormat> HttpSubmitName(String serverAdd, String name) {
+FutureOr<http.Response> onTimeout() => http.Response(json.encode({}), 408);
+
+Future<ResponseFormat> HttpCreate(String serverAdd, String name) {
   Map map = {'doorName': name};
   return httpRequest(serverAdd, map, 'create');
 }
@@ -24,21 +26,44 @@ Future<ResponseFormat> HttpUpdate(String serverAdd, Map map) {
 Future<ResponseFormat> httpRequest(
     String serverAdd, Map map, String mode) async {
   try {
-    var response = await http.post(Uri.http(serverAdd, DoorURL.URLs[mode]!),
-        body: json.encode(map));
-    print('had http');
-    Map<String, dynamic> Data = jsonDecode(response.body);
+    var response = await http
+        .post(Uri.http(serverAdd, DoorURL.URLs[mode]!), body: json.encode(map))
+        .timeout(
+          const Duration(seconds: 5),
+          onTimeout: onTimeout,
+        );
     var Code = response.statusCode.toInt();
-    return ResponseFormat(code: Code, data: Data);
+    Map<String, dynamic> Data = jsonDecode(response.body);
+    Map<String, dynamic> Retmp = ToMap(Code, Data);
+    return ResponseFormat(code: Code, data: Retmp);
   } catch (e) {
-    print('no http');
+    String reason;
+    int StatusCode = -2;
     if (e is SocketException) {
-      print("Socket exception: ${e.toString()}");
+      StatusCode = -1;
+      reason = "Socket exception: ${e.toString()}";
     } else if (e is TimeoutException) {
-      print("Timeout exception: ${e.toString()}");
+      reason = "Timeout exception: ${e.toString()}";
     } else {
-      print("Unhandled exception: ${e.toString()}");
+      reason = "Unhandled exception: ${e.toString()}";
     }
-    return ResponseFormat(code: -1, data: {});
+    Map<String, dynamic> Retmp = ToMap(StatusCode, {"reason": reason});
+    return ResponseFormat(code: StatusCode, data: Retmp);
+  }
+}
+
+Map<String, dynamic> ToMap(int StatusCode, Map<String, dynamic> data) {
+  switch (StatusCode) {
+    case 200:
+      return data;
+    case 400:
+      return {
+        "code": '$StatusCode-${data['code']}', // Ex: 200-1,
+        "reason": data["reason"]
+      };
+    case 408:
+      return {"code": '$StatusCode', "reason": 'Has http but http Timeout'};
+    default:
+      return {"code": '$StatusCode', "reason": data["reason"]};
   }
 }

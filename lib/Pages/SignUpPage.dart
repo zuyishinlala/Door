@@ -10,6 +10,7 @@ import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:flutter/services.dart';
 
 import '../PopUpDialog/ErrorDialog.dart';
+import '../PopUpDialog/NohttpDialog.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -24,13 +25,17 @@ class _SignUpState extends State<SignUp> {
   late DoorController door = Get.find<DoorController>();
 
   Future<void> Submit(String name) async {
-    ResponseFormat response = await HttpSubmitName(door.serverAdd, name);
+    ResponseFormat response = await HttpCreate(door.serverAdd, name);
     if (response.code == 200) {
       Get.offNamed(Routes.NavBar, arguments: response.data);
-    } else if (response.code == -1) {
-      Get.offNamed(Routes.NavBar, arguments: ConvertData(name));
     } else {
-      ErrorMessage(response.data['code'], response.data['reason']);
+      if (response.code == -1) {
+        NoHttpDialog(response.data['reason']);
+        Timer(const Duration(seconds: 2),
+            () => Get.offNamed(Routes.NavBar, arguments: ConvertData(name)));
+      } else {
+        ErrorDialog(response.data['code'], response.data['reason']);
+      }
     }
   }
 
@@ -154,9 +159,9 @@ class _SignUpState extends State<SignUp> {
                           ),
                           onPressed: () {
                             if (NameController.text.isEmpty) {
-                              ErrorMessage('001', 'Name space cannot be empty');
+                              ErrorDialog('001', 'Name space cannot be empty');
                             } else if (NameController.text.length > 50) {
-                              ErrorMessage('002',
+                              ErrorDialog('002',
                                   'Name space cannot exceed more than 50 chars.');
                             } else
                               Submit(NameController.text);

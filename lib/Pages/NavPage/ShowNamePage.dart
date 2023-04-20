@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_brace_in_string_interps, non_constant_identifier_names, avoid_print, file_names
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:get/get.dart';
@@ -9,6 +11,7 @@ import 'package:door/main.dart';
 import '../../Https/HttpResponseFormat.dart';
 import '../../PopUpDialog/ErrorDialog.dart';
 import '../../Https/Https.dart';
+import '../../PopUpDialog/NohttpDialog.dart';
 
 class ShowNamePage extends StatefulWidget {
   const ShowNamePage({super.key});
@@ -20,15 +23,14 @@ class ShowNamePage extends StatefulWidget {
 class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
   late MediaQueryData queryData = queryData = MediaQuery.of(context);
+
   void update() async {
     ResponseFormat response =
         await HttpUpdate(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
       door.UpdateDoor(response.data);
-    } else if (response.code == -1) {
-      ErrorMessage('-1', 'Update with no http connection.');
     } else {
-      ErrorMessage(response.data['code'], response.data['reason']);
+      ErrorDialog(response.data['code'], response.data['reason']);
     }
   }
 
@@ -38,11 +40,15 @@ class _ShowNamePageState extends State<ShowNamePage> {
     if (response.code == 200) {
       Get.delete<DoorController>(force: true);
       Get.offNamed(Routes.SignUp);
-    } else if (response.code == -1) {
-      Get.delete<DoorController>(force: true);
-      Get.offNamed(Routes.SignUp);
     } else {
-      ErrorMessage(response.data['code'], response.data['reason']);
+      if (response.code == -1) {
+        NoHttpDialog(response.data['reason']);
+        Timer(const Duration(seconds: 3),
+            () => Get.delete<DoorController>(force: true));
+        Timer(const Duration(seconds: 3), () => Get.offNamed(Routes.SignUp));
+      } else {
+        ErrorDialog(response.data['code'], response.data['reason']);
+      }
     }
   }
 
