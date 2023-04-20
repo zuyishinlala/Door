@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_brace_in_string_interps, non_constant_identifier_names, avoid_print, file_names
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -24,7 +22,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
   late MediaQueryData queryData = queryData = MediaQuery.of(context);
 
-  void update() async {
+  Future<void> update() async {
     ResponseFormat response =
         await HttpUpdate(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
@@ -34,7 +32,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
     }
   }
 
-  void delete() async {
+  Future<void> delete() async {
     ResponseFormat response =
         await HttpDelete(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
@@ -42,15 +40,15 @@ class _ShowNamePageState extends State<ShowNamePage> {
       Get.offNamed(Routes.SignUp);
     } else {
       if (response.code == -1) {
+        Get.delete<DoorController>(force: true);
+        Timer(const Duration(seconds: 2), () => Get.offNamed(Routes.SignUp));
         NoHttpDialog(response.data['reason']);
-        Timer(const Duration(seconds: 3),
-            () => Get.delete<DoorController>(force: true));
-        Timer(const Duration(seconds: 3), () => Get.offNamed(Routes.SignUp));
       } else {
         ErrorDialog(response.data['code'], response.data['reason']);
       }
     }
   }
+  
 
   Widget IconOutlineButton(String mode) {
     return OutlinedButton.icon(
@@ -65,12 +63,12 @@ class _ShowNamePageState extends State<ShowNamePage> {
             color: mode == 'Delete' ? Colors.redAccent : Colors.greenAccent),
       ),
       icon: Icon(mode == 'Delete' ? Icons.delete : Icons.refresh_rounded),
-      label: Text('${mode} Door',
+      label: Text('$mode Door',
           style: TextStyle(
               color: mode == 'Delete' ? Colors.red[400] : Colors.green[400])),
       onPressed: () {
         Get.defaultDialog(
-            title: "${mode} Door Comfirmation",
+            title: "$mode Door Comfirmation",
             radius: 5,
             middleText: 'Are you certain?',
             middleTextStyle: const TextStyle(fontSize: 25),
@@ -78,10 +76,10 @@ class _ShowNamePageState extends State<ShowNamePage> {
             buttonColor: Colors.amber,
             textCancel: 'Cancel',
             cancelTextColor: Colors.black,
-            onCancel: () => Get.back(),
             textConfirm: 'Yes',
             confirmTextColor: Colors.black,
-            onConfirm: () => mode == 'Delete' ? delete() : update());
+            onConfirm: () => mode == 'Delete' ? delete() : update()
+        );
       },
     );
   }

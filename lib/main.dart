@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+
 import 'package:door/Pages/SignUpPage.dart';
 import 'package:get/get.dart';
 import 'package:door/Pages/NavPage/DoorScanPage.dart';
@@ -9,6 +10,7 @@ import 'package:door/Pages/NavPage/RecordPage.dart';
 import 'package:door/Pages/NavPage/ShowNamePage.dart';
 import 'package:door/DoorController/DoorRunning_binding.dart';
 import 'package:door/Navigator/Navbar.dart';
+
 // ==========main==========
 part 'app_routes.dart';
 
