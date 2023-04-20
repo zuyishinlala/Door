@@ -48,7 +48,6 @@ Future<ResponseFormat> httpRequest(
       reason = "Unhandled exception: ${e.toString()}";
     }
     Map<String, dynamic> Retmp = ToMap(StatusCode, {"reason": reason});
-    print('Wtf Mode is:$mode');
     return ResponseFormat(code: StatusCode, data: Retmp);
   }
 }
