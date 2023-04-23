@@ -32,7 +32,7 @@ Future<ResponseFormat> httpRequest(
           const Duration(seconds: 5),
           onTimeout: onTimeout,
         );
-    var Code = response.statusCode.toInt();
+    var Code = response.statusCode;
     Map<String, dynamic> Data = jsonDecode(response.body);
     Map<String, dynamic> Retmp = ToMap(Code, Data);
     return ResponseFormat(code: Code, data: Retmp);

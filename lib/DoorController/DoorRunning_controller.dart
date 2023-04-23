@@ -27,7 +27,8 @@ class DoorController extends GetxController {
     'April-18 2023': l
   };
   void SetDoor(Map<String, dynamic> json) {
-    Name(json["doorName"]);
+    var Tempname = json["doorName"].toString().codeUnits;
+    Name(utf8.decode(Tempname));
     share = TransformShareData(base64Decode(json["doorShare"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
   }

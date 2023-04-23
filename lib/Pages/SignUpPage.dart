@@ -160,11 +160,17 @@ class _SignUpState extends State<SignUp> {
                           onPressed: () {
                             if (NameController.text.isEmpty) {
                               ErrorDialog('001', 'Name space cannot be empty');
-                            } else if (NameController.text.length > 50) {
+                            }
+                            var encoded = utf8.encode(NameController.text);
+                            var Name = String.fromCharCodes(encoded);
+                            if (Name.length > 50) {
                               ErrorDialog('002',
                                   'Name space cannot exceed more than 50 chars.');
-                            } else
-                              Submit(NameController.text);
+                            } else {
+                              //var ddd = Name.codeUnits;
+                              //var b = utf8.decode(ddd);
+                              Submit(Name);
+                            }
                           }),
                       SizedBox(
                         height: 10,

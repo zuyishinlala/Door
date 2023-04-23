@@ -88,6 +88,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
   }
 
   String GetUserName(Uint8List UserShare) {
+    /*
     Uint8List UserName = Uint8List(50);
     String ret = '';
     for (int i = 0; i < 400; ++i) {
@@ -98,10 +99,21 @@ class _DoorScanPageState extends State<DoorScanPage> {
       assert(UserSubpixelCount == 2 || UserSubpixelCount == 3);
       UserName[i ~/ 8] |= (UserSubpixelCount == 2 ? 0 : 1) << (i % 8);
     }
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 50 ; ++i) {
       ret += String.fromCharCode(UserShare[i]);
     }
     return ret;
+    */
+    List<int> UserName = List.filled(50, 0);
+    for (int i = 0; i < 400; ++i) {
+      var UserSubpixelCount = 0;
+      for (int u = 0; u < 4; ++u) {
+        if ((UserShare[i] >> u & 1) == 1) ++UserSubpixelCount;
+      }
+      assert(UserSubpixelCount == 2 || UserSubpixelCount == 3);
+      UserName[i ~/ 8] |= (UserSubpixelCount == 2 ? 0 : 1) << (i % 8);
+    }
+    return utf8.decode(UserName);
   }
 
   @override
