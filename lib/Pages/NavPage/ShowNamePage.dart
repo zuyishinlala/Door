@@ -48,7 +48,6 @@ class _ShowNamePageState extends State<ShowNamePage> {
       }
     }
   }
-  
 
   Widget IconOutlineButton(String mode) {
     return OutlinedButton.icon(
@@ -78,8 +77,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
             cancelTextColor: Colors.black,
             textConfirm: 'Yes',
             confirmTextColor: Colors.black,
-            onConfirm: () => mode == 'Delete' ? delete() : update()
-        );
+            onConfirm: () => mode == 'Delete' ? delete() : update());
       },
     );
   }
@@ -91,6 +89,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
         id: 'AppBar',
         builder: (door) {
           return AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
             title: const Text('Name Page'),
           );
@@ -99,29 +98,33 @@ class _ShowNamePageState extends State<ShowNamePage> {
       const SizedBox(
         height: 10,
       ),
-      Container(
-        alignment: Alignment.bottomCenter,
-        child: Text(
+      Obx(
+        () => Center(child: Text(
           'Door Name: ${door.Name}',
           textAlign: TextAlign.center,
           style: TextStyle(
               color: Colors.grey[700],
               fontSize: 25,
               fontWeight: FontWeight.w700),
-        ),
-      ),
-      Container(
-        height: 300,
-        width: 300,
-        padding: const EdgeInsets.all(8),
-        child: Center(
-          child: QrImage(
-            data: door.Name.value,
-            version: 10,
-            errorCorrectionLevel: QrErrorCorrectLevel.L,
           ),
-        ),
+        )
       ),
+      Obx(
+        () => Center(child: Container(
+            height: 300,
+            width: 300,
+            padding: const EdgeInsets.all(8),
+            child: Center(
+              child: QrImage(
+                data: door.Name,
+                version: 10,
+                errorCorrectionLevel: QrErrorCorrectLevel.L,
+              ),
+            ),
+          ),
+        )
+      ),
+      
       TextButton(
         child: Text(
           'unlock',

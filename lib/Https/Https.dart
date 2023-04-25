@@ -33,12 +33,12 @@ Future<ResponseFormat> httpRequest(
           onTimeout: onTimeout,
         );
     var Code = response.statusCode;
-    Map<String, dynamic> Data = jsonDecode(response.body);
+    Map<String, dynamic> Data = json.decode(response.body);
     Map<String, dynamic> Retmp = ToMap(Code, Data);
     return ResponseFormat(code: Code, data: Retmp);
   } catch (e) {
     String reason;
-    int StatusCode = -2;
+    int StatusCode = -4;
     if (e is SocketException) {
       StatusCode = -1;
       reason = "Socket exception: ${e.toString()}";

@@ -123,6 +123,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
         id: 'AppBar',
         builder: (door) {
           return AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
             title: Text(door.locked ? 'Locked' : 'Pass!'),
           );
@@ -137,15 +138,19 @@ class _DoorScanPageState extends State<DoorScanPage> {
               color: Color.fromARGB(255, 208, 157, 6),
               fontSize: 20,
               fontWeight: FontWeight.w800)),
-      Container(
-        height: 300,
-        width: 300,
-        padding: const EdgeInsets.all(8),
-        child: Center(
-          child: QrImage(
-            data: "d=${door.Name}&s=$currentSeed",
-            version: 10,
-            errorCorrectionLevel: QrErrorCorrectLevel.L,
+      Obx(
+        () => SizedBox(
+          height: 250,
+          width: 250,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: QrImage(
+                data: "d=${door.Name}&s=$currentSeed",
+                version: 10,
+                errorCorrectionLevel: QrErrorCorrectLevel.L,
+              ),
+            ),
           ),
         ),
       ),
@@ -165,6 +170,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
           ),
         ),
       ),
+      
     ]);
   }
 }

@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, file_names, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:door/Navigator/NavBar_controller.dart';
@@ -12,7 +10,7 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
   @override
-  _NavBarState createState() => _NavBarState();
+  State<NavBar> createState() => _NavBarState();
 }
 
 class _NavBarState extends State<NavBar> {
@@ -26,19 +24,19 @@ class _NavBarState extends State<NavBar> {
 
   Future<void> getData() async {
     final map = await Get.arguments;
-    setState(() {
-      door.SetDoor(map);
-    });
+    door.SetDoor(map);
   }
 
   @override
-  Widget build(BuildContext Context) {
-    return GetBuilder<NavBarController>(builder: (Context) {
+  Widget build(BuildContext context) {
+    return GetBuilder<NavBarController>(builder: (context) {
       return Scaffold(
         body: SafeArea(
-            child: IndexedStack(
-                index: controller.Tabindex,
-                children: [DoorScanPage(), RecordPage(), ShowNamePage()])),
+            child: IndexedStack(index: controller.Tabindex, children: const [
+          DoorScanPage(),
+          RecordPage(),
+          ShowNamePage()
+        ])),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: controller.Tabindex,
             onTap: controller.ChangeTabIndex,
@@ -56,6 +54,4 @@ class _NavBarState extends State<NavBar> {
   bottomBarItem(IconData icon, String label) {
     return BottomNavigationBarItem(icon: Icon(icon), label: label);
   }
-
-
 }

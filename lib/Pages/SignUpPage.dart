@@ -45,7 +45,7 @@ class _SignUpState extends State<SignUp> {
     var Secret = base64Encode(Uint8List.fromList(List.filled(1, 30)));
     Map mp = {"secret": Secret, "doorShare": Share, "doorName": name};
     String encodedmp = json.encode(mp);
-    Map<String, dynamic> ret = jsonDecode(encodedmp);
+    Map<String, dynamic> ret = json.decode(encodedmp);
     return ret;
   }
 
@@ -63,7 +63,7 @@ class _SignUpState extends State<SignUp> {
                   padding: EdgeInsets.only(
                       left: 35,
                       right: 35,
-                      top: MediaQuery.of(context).size.height * 0.4),
+                      top: MediaQuery.of(context).size.height * 0.3),
                   child: Column(
                     children: [
                       Container(
@@ -202,10 +202,12 @@ class _SignUpState extends State<SignUp> {
                                 TextField(
                                   controller: IpController,
                                   keyboardType: TextInputType.number,
+                                  /*
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
                                         RegExp("[0-9.]"))
                                   ],
+                                  */
                                   style: TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     fillColor: Colors.grey.shade100,
@@ -228,9 +230,11 @@ class _SignUpState extends State<SignUp> {
                                 TextField(
                                   controller: PortController,
                                   keyboardType: TextInputType.number,
+                                  /*
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
+                                  */
                                   style: TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     fillColor: Colors.grey.shade100,

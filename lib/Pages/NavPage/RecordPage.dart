@@ -45,6 +45,7 @@ class RecordPageState extends State<RecordPage> {
         id: 'AppBar',
         builder: (door) {
           return AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
             title: const Text('Record Page'),
           );

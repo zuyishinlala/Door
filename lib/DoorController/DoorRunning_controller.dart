@@ -27,8 +27,9 @@ class DoorController extends GetxController {
     'April-18 2023': l
   };
   void SetDoor(Map<String, dynamic> json) {
-    var Tempname = json["doorName"].toString().codeUnits;
-    Name(utf8.decode(Tempname));
+    var Tempname1 = json["doorName"].codeUnits;
+    String Temp = utf8.decode(Tempname1);
+    _Name.value = Temp;
     share = TransformShareData(base64Decode(json["doorShare"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
   }
@@ -88,7 +89,7 @@ class DoorController extends GetxController {
     String base64encodedSecret = base64Encode(SecretBuffer);
     return {
       "secret": base64encodedSecret,
-      "doorName": _Name.value,
+      "doorName": NameEncode(_Name.value),
     };
   }
 
@@ -105,6 +106,10 @@ class DoorController extends GetxController {
 
   Uint8List getShare() => share;
   Uint8List getSecret() => secret;
-  set Name(value) => _Name.value = value;
-  get Name => _Name;
+  get Name => _Name.value;
+  
+  String NameEncode(String name){
+    var encoded = utf8.encode(name);
+    return String.fromCharCodes(encoded);
+  }
 }
