@@ -124,7 +124,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
           ),
         )
       ),
-      
+      /*
       TextButton(
         child: Text(
           'unlock',
@@ -150,6 +150,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
           door.insertTempRecord(Name);
         },
       ),
+      */
       const Spacer(),
       IconOutlineButton('Delete'),
       const SizedBox(
