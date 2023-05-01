@@ -1,4 +1,5 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, avoid_print, curly_braces_in_flow_control_structures, file_names
+// ignore_for_file: non_constant_identifier_names, file_names
+
 import 'package:door/Https/Https.dart';
 import 'package:door/Https/HttpResponseFormat.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import '../PopUpDialog/NohttpDialog.dart';
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
   @override
+  // ignore: library_private_types_in_public_api
   _SignUpState createState() => _SignUpState();
 }
 
@@ -23,10 +25,12 @@ class _SignUpState extends State<SignUp> {
   TextEditingController IpController = TextEditingController();
   TextEditingController PortController = TextEditingController();
   late DoorController door = Get.find<DoorController>();
+  String serverAdd = '127.168.0.0.1:8000';
 
   Future<void> Submit(String name) async {
-    ResponseFormat response = await HttpCreate(door.serverAdd, name);
+    ResponseFormat response = await HttpCreate(serverAdd, name);
     if (response.code == 200) {
+      response.data['serverAdd'] = serverAdd;
       Get.offNamed(Routes.NavBar, arguments: response.data);
     } else {
       if (response.code == -1) {
@@ -43,16 +47,25 @@ class _SignUpState extends State<SignUp> {
   Map<String, dynamic> ConvertData(String name) {
     var Share = base64Encode(Uint8List.fromList(List.filled(1, 165)));
     var Secret = base64Encode(Uint8List.fromList(List.filled(1, 30)));
-    Map mp = {"secret": Secret, "doorShare": Share, "doorName": name};
+    Map mp = {
+      "secret": Secret,
+      "doorShare": Share,
+      "doorName": name,
+      "serverAdd": serverAdd
+    };
     String encodedmp = json.encode(mp);
     Map<String, dynamic> ret = json.decode(encodedmp);
     return ret;
   }
 
+  void setURL(String Ip, String port) {
+    serverAdd = '$Ip:$port';
+  }
+
   @override
   Widget build(BuildContext Context) {
     return Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
               image: AssetImage("assets/Cropped.jpg"), fit: BoxFit.cover),
         ),
@@ -68,7 +81,7 @@ class _SignUpState extends State<SignUp> {
                     children: [
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: const Text(
                           'Create\nA\nDoor',
                           style: TextStyle(
                               color: Colors.black,
@@ -76,23 +89,23 @@ class _SignUpState extends State<SignUp> {
                               fontWeight: FontWeight.w800),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: const Text(
                           'Please give your new door a Name.',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: const Text(
                           'Note: Door Name cannot exceed 50 characters.',
                           style: TextStyle(
                               fontSize: 13,
@@ -100,12 +113,12 @@ class _SignUpState extends State<SignUp> {
                               color: Colors.black),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       TextField(
                         controller: NameController,
-                        style: TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                           fillColor: Colors.grey.shade100,
                           filled: true,
@@ -121,7 +134,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       OutlinedButton(
@@ -135,23 +148,22 @@ class _SignUpState extends State<SignUp> {
                             backgroundColor: Colors.white,
                           ),
                           child: Row(
-                            // ignore: prefer_const_literals_to_create_immutables
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              const Text(
                                 'Sign up',
                                 style: TextStyle(
                                     color: Colors.black54,
                                     fontSize: 27,
                                     fontWeight: FontWeight.w700),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 10,
                               ),
                               CircleAvatar(
                                   radius: 20,
                                   backgroundColor: Colors.grey[700],
-                                  child: Icon(
+                                  child: const Icon(
                                     color: Colors.white,
                                     Icons.arrow_forward,
                                   )),
@@ -172,7 +184,7 @@ class _SignUpState extends State<SignUp> {
                               Submit(Name);
                             }
                           }),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       OutlinedButton(
@@ -184,7 +196,7 @@ class _SignUpState extends State<SignUp> {
                               width: 2, color: Color.fromARGB(255, 89, 92, 93)),
                           backgroundColor: Colors.white,
                         ),
-                        child: Text(
+                        child: const Text(
                           'SetPortIp',
                           style: TextStyle(
                               color: Colors.black54,
@@ -195,20 +207,18 @@ class _SignUpState extends State<SignUp> {
                           Get.defaultDialog(
                               title: "Set Port Ip",
                               backgroundColor: Colors.grey[700],
-                              titleStyle: TextStyle(color: Colors.white),
-                              middleTextStyle: TextStyle(color: Colors.white),
+                              titleStyle: const TextStyle(color: Colors.white),
+                              middleTextStyle: const TextStyle(color: Colors.white),
                               radius: 30,
                               content: Column(children: [
                                 TextField(
                                   controller: IpController,
-                                  keyboardType: TextInputType.number,
-                                  /*
+                                  //keyboardType: TextInputType.number,
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
                                         RegExp("[0-9.]"))
                                   ],
-                                  */
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     fillColor: Colors.grey.shade100,
                                     filled: true,
@@ -224,18 +234,16 @@ class _SignUpState extends State<SignUp> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 TextField(
                                   controller: PortController,
                                   keyboardType: TextInputType.number,
-                                  /*
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
-                                  */
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     fillColor: Colors.grey.shade100,
                                     filled: true,
@@ -252,7 +260,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                 ),
                                 TextButton(
-                                  child: Text(
+                                  child: const Text(
                                     'Submit',
                                     style: TextStyle(
                                         color: Colors.white,
@@ -260,7 +268,7 @@ class _SignUpState extends State<SignUp> {
                                         fontWeight: FontWeight.w700),
                                   ),
                                   onPressed: () {
-                                    door.SetURL(
+                                    setURL(
                                         IpController.text, PortController.text);
                                     Get.back();
                                   },

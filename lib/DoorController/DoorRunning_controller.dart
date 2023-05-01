@@ -17,7 +17,7 @@ class DoorController extends GetxController {
   final Rx<String> _Name = ''.obs;
   Uint8List secret = Uint8List(0);
   Uint8List share = Uint8List(0);
-  String serverAdd = '127.168.0.0.1:8000';
+  String serverAdd = '';
   var locked = true;
 
   // Fake Data
@@ -26,16 +26,14 @@ class DoorController extends GetxController {
     'March-15 2023': l,
     'April-18 2023': l
   };
+
   void SetDoor(Map<String, dynamic> json) {
     var Tempname1 = json["doorName"].codeUnits;
     String Temp = utf8.decode(Tempname1);
     _Name.value = Temp;
     share = TransformShareData(base64Decode(json["doorShare"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
-  }
-
-  void SetURL(String Ip, String port) {
-    serverAdd = Ip + ':' + port;
+    serverAdd = json["serverAdd"];
   }
 
   unlock() {
@@ -104,11 +102,10 @@ class DoorController extends GetxController {
     }
   }
 
-  Uint8List getShare() => share;
-  Uint8List getSecret() => secret;
+  //Uint8List getShare() => share;
+  //Uint8List getSecret() => secret;
   get Name => _Name.value;
-  
-  String NameEncode(String name){
+  String NameEncode(String name) {
     var encoded = utf8.encode(name);
     return String.fromCharCodes(encoded);
   }

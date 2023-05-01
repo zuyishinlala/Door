@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -49,6 +51,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
     }
   }
 
+  // ignore: non_constant_identifier_names
   Widget IconOutlineButton(String mode) {
     return OutlinedButton.icon(
       style: OutlinedButton.styleFrom(
@@ -146,6 +149,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
               fontWeight: FontWeight.w700),
         ),
         onPressed: () {
+          // ignore: non_constant_identifier_names
           String Name = 'Daniel';
           door.insertTempRecord(Name);
         },

@@ -25,7 +25,10 @@ class _DoorScanPageState extends State<DoorScanPage> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   int currentSeed = 0;
-
+  String HintString = 'Scan the QrCode below if you want to open the door.';
+  //String ShowedString = 'Scan the QrCode below if you want to open the door.';
+  late final ValueNotifier<String> _ShowedString = ValueNotifier<String>(
+      'Scan the QrCode below if you want to open the door.');
   @override
   void initState() {
     super.initState();
@@ -52,6 +55,11 @@ class _DoorScanPageState extends State<DoorScanPage> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       if (door.locked && scanData.code != null) {
+        _ShowedString.value = 'User QR Code scanned!';
+        Timer.periodic(const Duration(seconds: 5), (timer) {
+          _ShowedString.value = HintString;
+          timer.cancel();
+        });
         Uint8List xorUserShare = base64Decode(scanData.code!);
         Random random = Random(currentSeed);
         for (int i = 0; i < 200; i++) {
@@ -74,8 +82,8 @@ class _DoorScanPageState extends State<DoorScanPage> {
 
   bool isCorrectKey(Uint8List UserShare) {
     assert(UserShare.length == 400);
-    Uint8List DoorShare = door.getShare();
-    Uint8List Secret = door.getSecret();
+    Uint8List DoorShare = door.share;
+    Uint8List Secret = door.secret;
     for (int i = 0; i < 400; ++i) {
       var tmp = UserShare[i] | DoorShare[i];
       var count = 0;
@@ -132,12 +140,17 @@ class _DoorScanPageState extends State<DoorScanPage> {
       const SizedBox(
         height: 10,
       ),
-      const Text('Scan the QrCode below if you want to open the door.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Color.fromARGB(255, 208, 157, 6),
-              fontSize: 20,
-              fontWeight: FontWeight.w800)),
+      Center(
+          child: ValueListenableBuilder<String>(
+              builder: (context, value, child) {
+                return Text( value, //
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 208, 157, 6),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800));
+              },
+              valueListenable: _ShowedString)),
       Obx(
         () => SizedBox(
           height: 250,
@@ -170,7 +183,6 @@ class _DoorScanPageState extends State<DoorScanPage> {
           ),
         ),
       ),
-      
     ]);
   }
 }
