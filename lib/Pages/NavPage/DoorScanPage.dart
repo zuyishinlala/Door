@@ -65,15 +65,17 @@ class _DoorScanPageState extends State<DoorScanPage> {
         for (int i = 0; i < 200; i++) {
           xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
         }
-        Uint8List UserShare = door.TransformShareData(xorUserShare); // 400
+        Uint8List UserShare =
+            door.TransformShareData(xorUserShare); // Share Len:400
         String Username = GetUserName(UserShare);
         /*
         if(isblacklist()){
         }else{
         }
         */
+        //Uint8List UserShare = door.usershare;
         if (isCorrectKey(UserShare)) {
-          door.insertTempRecord(Username);
+          door.insertNameRecord(Username);
           door.unlock();
         }
       }
@@ -84,6 +86,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
     assert(UserShare.length == 400);
     Uint8List DoorShare = door.share;
     Uint8List Secret = door.secret;
+
     for (int i = 0; i < 400; ++i) {
       var tmp = UserShare[i] | DoorShare[i];
       var count = 0;
@@ -143,7 +146,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
       Center(
           child: ValueListenableBuilder<String>(
               builder: (context, value, child) {
-                return Text( value, //
+                return Text(value, //
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         color: Color.fromARGB(255, 208, 157, 6),

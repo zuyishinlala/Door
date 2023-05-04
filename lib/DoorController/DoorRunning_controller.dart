@@ -18,6 +18,8 @@ class DoorController extends GetxController {
   Uint8List secret = Uint8List(0);
   Uint8List share = Uint8List(0);
   String serverAdd = '';
+  List<String> BlackList = [];
+  var UpdateDate = [].obs;
   var locked = true;
 
   // Fake Data
@@ -91,7 +93,7 @@ class DoorController extends GetxController {
     };
   }
 
-  void insertTempRecord(String Name) {
+  void insertNameRecord(String Name) {
     String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
     String time = DateFormat("HH:mm:ss").format(DateTime.now());
     Record record = Record(Name, time);
@@ -101,9 +103,7 @@ class DoorController extends GetxController {
       Maprecords[date] = [record];
     }
   }
-
-  //Uint8List getShare() => share;
-  //Uint8List getSecret() => secret;
+  
   get Name => _Name.value;
   String NameEncode(String name) {
     var encoded = utf8.encode(name);

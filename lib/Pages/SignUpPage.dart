@@ -7,11 +7,13 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:door/main.dart';
-import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:flutter/services.dart';
 
+import '../DoorController/DoorRunning_controller.dart';
 import '../PopUpDialog/ErrorDialog.dart';
 import '../PopUpDialog/NohttpDialog.dart';
+
+import 'package:image/image.dart' as img;
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -24,9 +26,89 @@ class _SignUpState extends State<SignUp> {
   TextEditingController NameController = TextEditingController();
   TextEditingController IpController = TextEditingController();
   TextEditingController PortController = TextEditingController();
-  late DoorController door = Get.find<DoorController>();
   String serverAdd = '127.168.0.0.1:8000';
+  //#################################################################
+  late DoorController door = Get.find<DoorController>();
+  Uint8List secret = Uint8List.fromList(List.filled(50, 0));
+  Uint8List DoorShare = Uint8List.fromList(List.filled(200, 0));
+  Uint8List UserShare = Uint8List.fromList(List.filled(200, 0));
+  bool isCorrect = false;
+  @override
+  void initState() {
+    super.initState();
+    rootBundle.load('assets/images/door1_secret.png').then((data) {
+      final buffer = img
+          .decodeImage(data.buffer.asUint8List())!
+          .getBytes(format: img.Format.luminance)
+          .map((e) => e == 0 ? 1 : 0) // e == 0 means e is black
+          .toList();
 
+      setState(() {
+        secret = Uint8List.fromList(LoadSecret(buffer));
+      });
+    });
+
+    rootBundle.load('assets/images/door1_share1.png').then((data) {
+      final buffer = img
+          .decodeImage(data.buffer.asUint8List())!
+          .getBytes(format: img.Format.luminance)
+          .map((e) => e == 0 ? 1 : 0)
+          .toList();
+
+      setState(() {
+        DoorShare = Uint8List.fromList(
+            LoadShare(buffer, 'Door')); // share1 length = 1600
+      });
+    });
+
+    rootBundle.load('assets/images/door1_share2_1.png').then((data) {
+      // UserShare
+      final buffer = img
+          .decodeImage(data.buffer.asUint8List())!
+          .getBytes(format: img.Format.luminance)
+          .map((e) => e == 0 ? 1 : 0)
+          .toList();
+
+      setState(() {
+        UserShare = Uint8List.fromList(
+            LoadShare(buffer, 'User')); // share1 length = 1600
+      });
+    });
+  }
+
+  List<int> LoadSecret(List<int> Secret) {
+    var Ret = List.filled(50, 0);
+    for (int i = 0; i < 400; ++i) {
+      Ret[i ~/ 8] |= Secret[i] << (i % 8);
+    }
+    return Ret;
+  }
+
+  List<int> LoadShare(List<int> Share, String mode) {
+    var Img = List.generate(40, (i) => List.filled(40, 0, growable: false),
+        growable: false);
+    var Ret = List.filled(200, 0);
+    for (int i = 0; i < 1600; ++i) {
+      Img[i ~/ 40][i % 40] = Share[i];
+    }
+    for (int r = 0; r < 40; r += 2) {
+      for (int c = 0; c < 40; c += 2) {
+        int Idx = r * 5 + (c ~/ 4);
+        for (int sh = 0; sh < 2; ++sh) {
+          Ret[Idx] |= Img[r][c] << (sh * 4);
+          Ret[Idx] |= Img[r][c + 1] << (sh * 4 + 1);
+          Ret[Idx] |= Img[r + 1][c] << (sh * 4 + 2);
+          Ret[Idx] |= Img[r + 1][c + 1] << (sh * 4 + 3);
+          c += 2;
+        }
+        c -= 2;
+      }
+    }
+    return Ret;
+  }
+
+
+  //#################################################################
   Future<void> Submit(String name) async {
     ResponseFormat response = await HttpCreate(serverAdd, name);
     if (response.code == 200) {
@@ -45,13 +127,13 @@ class _SignUpState extends State<SignUp> {
 
   //  ConvertData is only a testing function
   Map<String, dynamic> ConvertData(String name) {
-    var Share = base64Encode(Uint8List.fromList(List.filled(1, 165)));
-    var Secret = base64Encode(Uint8List.fromList(List.filled(1, 30)));
+    var TempDoorShare = base64Encode(DoorShare);
+    var Secret = base64Encode(secret);
     Map mp = {
       "secret": Secret,
-      "doorShare": Share,
+      "doorShare": TempDoorShare,
       "doorName": name,
-      "serverAdd": serverAdd
+      "serverAdd": serverAdd,
     };
     String encodedmp = json.encode(mp);
     Map<String, dynamic> ret = json.decode(encodedmp);
@@ -208,7 +290,8 @@ class _SignUpState extends State<SignUp> {
                               title: "Set Port Ip",
                               backgroundColor: Colors.grey[700],
                               titleStyle: const TextStyle(color: Colors.white),
-                              middleTextStyle: const TextStyle(color: Colors.white),
+                              middleTextStyle:
+                                  const TextStyle(color: Colors.white),
                               radius: 30,
                               content: Column(children: [
                                 TextField(
