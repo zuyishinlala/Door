@@ -67,7 +67,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
         }
         Uint8List UserShare =
             door.TransformShareData(xorUserShare); // Share Len:400
-        String Username = GetUserName(UserShare);
+        //String Username = GetUserName(UserShare);
         /*
         if(isblacklist()){
         }else{
@@ -75,7 +75,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
         */
         //Uint8List UserShare = door.usershare;
         if (isCorrectKey(UserShare)) {
-          door.insertNameRecord(Username);
+          door.insertNameRecord('Hey');
           door.unlock();
         }
       }
@@ -115,6 +115,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
     }
     return ret;
     */
+    
     List<int> UserName = List.filled(50, 0);
     for (int i = 0; i < 400; ++i) {
       var UserSubpixelCount = 0;

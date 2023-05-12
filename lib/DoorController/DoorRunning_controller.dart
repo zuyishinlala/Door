@@ -4,8 +4,9 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:door/Pages/NavPage/RecordBlocks/Record.dart';
+import 'package:door/Blocks/record.dart';
 import 'package:intl/intl.dart';
+import '../Blocks/updateblock.dart';
 
 List<Record> l = [
   Record('Daniel', '11:34:50'),
@@ -15,11 +16,11 @@ List<Record> l = [
 
 class DoorController extends GetxController {
   final Rx<String> _Name = ''.obs;
-  Uint8List secret = Uint8List(0);
-  Uint8List share = Uint8List(0);
+  Uint8List secret = Uint8List(0); // 400
+  Uint8List share = Uint8List(0);  // 400
   String serverAdd = '';
   List<String> BlackList = [];
-  var UpdateDate = [].obs;
+  var updates = <Updateblock>[].obs;
   var locked = true;
 
   // Fake Data
@@ -36,6 +37,7 @@ class DoorController extends GetxController {
     share = TransformShareData(base64Decode(json["doorShare"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
     serverAdd = json["serverAdd"];
+    insertUpdates('Door Created');
   }
 
   unlock() {
@@ -94,7 +96,7 @@ class DoorController extends GetxController {
   }
 
   void insertNameRecord(String Name) {
-    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
+    String date = DateFormat("yyyy MMMM-dd").format(DateTime.now());
     String time = DateFormat("HH:mm:ss").format(DateTime.now());
     Record record = Record(Name, time);
     if (Maprecords[date] != null) {
@@ -103,7 +105,17 @@ class DoorController extends GetxController {
       Maprecords[date] = [record];
     }
   }
-  
+
+  void insertUpdates(String mode) {
+    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+    bool showdate = false;
+    if (updates.isEmpty || updates[updates.length - 1].date != date) {       // show date
+      showdate = true;
+    }
+    updates.add(Updateblock(mode, date, time, showdate));
+  }
+
   get Name => _Name.value;
   String NameEncode(String name) {
     var encoded = utf8.encode(name);

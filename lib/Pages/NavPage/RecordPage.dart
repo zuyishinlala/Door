@@ -5,7 +5,7 @@ import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:door/Pages/NavPage/RecordBlocks/Record.dart';
+import 'package:door/Blocks/record.dart';
 
 class RecordPage extends StatefulWidget {
   const RecordPage({super.key});
@@ -78,7 +78,6 @@ class RecordPageState extends State<RecordPage> {
                     : Container()),
           )),
       const SizedBox(height: 8.0),
-
       Expanded(
         child: ValueListenableBuilder<List<Record>>(
           valueListenable: _selectedEvents,
@@ -96,8 +95,8 @@ class RecordPageState extends State<RecordPage> {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: ListTile(
-                    title: Text(value[index].UserName),
-                    subtitle: Text(value[index].Time),
+                    title: Text(value[index].username),
+                    subtitle: Text(value[index].time),
                   ),
                 );
               },

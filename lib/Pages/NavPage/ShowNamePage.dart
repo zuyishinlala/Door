@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:get/get.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:door/main.dart';
 
 import '../../Https/HttpResponseFormat.dart';
@@ -32,6 +31,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
     } else {
       ErrorDialog(response.data['code'], response.data['reason']);
     }
+    door.insertUpdates('Update Door');
   }
 
   Future<void> delete() async {
@@ -101,60 +101,70 @@ class _ShowNamePageState extends State<ShowNamePage> {
       const SizedBox(
         height: 10,
       ),
-      Obx(
-        () => Center(child: Text(
-          'Door Name: ${door.Name}',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 25,
-              fontWeight: FontWeight.w700),
-          ),
-        )
-      ),
-      Obx(
-        () => Center(child: Container(
-            height: 300,
-            width: 300,
-            padding: const EdgeInsets.all(8),
-            child: Center(
-              child: QrImage(
-                data: door.Name,
-                version: 10,
-                errorCorrectionLevel: QrErrorCorrectLevel.L,
-              ),
+      Obx(() => Center(
+            child: Text(
+              'Door Name: ${door.Name}',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700),
             ),
-          ),
-        )
-      ),
-      /*
-      TextButton(
-        child: Text(
-          'unlock',
+          )),
+      Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: 12.0,
+        ),
+        alignment: Alignment.centerLeft,
+        child: const Text(
+          'About this door:',
+          textAlign: TextAlign.left,
           style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 27,
+              color: Color.fromARGB(255, 86, 143, 171),
+              fontSize: 30,
               fontWeight: FontWeight.w700),
         ),
-        onPressed: () {
-          door.unlock();
-        },
       ),
-      TextButton(
-        child: Text(
-          'add Record',
-          style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 27,
-              fontWeight: FontWeight.w700),
+      Expanded(
+        flex: 6,
+        child: Obx(
+          () => ListView.builder(
+              itemCount: door.updates.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    door.updates[index].showdate
+                        ? Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                            ),
+                            alignment: Alignment.centerLeft,
+                            child: Text(door.updates[index].date,
+                                style: const TextStyle(
+                                    color: Colors.blueGrey,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700)),
+                          )
+                        : const SizedBox.shrink(),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 4.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: ListTile(
+                        title: Text(door.updates[index].mode),
+                        subtitle: Text(door.updates[index].time),
+                      ),
+                    )
+                  ],
+                );
+              }),
         ),
-        onPressed: () {
-          // ignore: non_constant_identifier_names
-          String Name = 'Daniel';
-          door.insertTempRecord(Name);
-        },
       ),
-      */
       const Spacer(),
       IconOutlineButton('Delete'),
       const SizedBox(
