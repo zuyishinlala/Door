@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:door/PopUpDialog/lottieDialog/DoneDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:get/get.dart';
@@ -27,28 +28,47 @@ class _ShowNamePageState extends State<ShowNamePage> {
     ResponseFormat response =
         await HttpUpdate(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
+      doneDialog('Door updated successfully!');
       door.UpdateDoor(response.data);
+      door.insertUpdates('Door updated');
+      closeDialogTimer(2);
     } else {
-      ErrorDialog(response.data['code'], response.data['reason']);
+      ErrorDialog(response.data['code'], response.data['detail']);
+      closeDialogTimer(1);
     }
-    door.insertUpdates('Update Door');
   }
 
   Future<void> delete() async {
     ResponseFormat response =
         await HttpDelete(door.serverAdd, door.DoorRequest());
-    if (response.code == 200) {
-      Get.delete<DoorController>(force: true);
-      Get.offNamed(Routes.SignUp);
+    if (response.code == 200 || response.code == 204) {
+      doneDialog('Door deleted successfully, bye!');
+      Timer(const Duration(seconds: 2), (() {
+        Get.delete<DoorController>(force: true);
+        Get.offNamed(Routes.SignUp);
+      }));
     } else {
       if (response.code == -1) {
         Get.delete<DoorController>(force: true);
         Timer(const Duration(seconds: 2), () => Get.offNamed(Routes.SignUp));
-        NoHttpDialog(response.data['reason']);
+        NoHttpDialog(response.data['detail']);
       } else {
-        ErrorDialog(response.data['code'], response.data['reason']);
+        ErrorDialog(response.data['code'], response.data['detail']);
+        closeDialogTimer(1);
       }
     }
+  }
+
+  _isThereCurrentDialogShowing(BuildContext context) =>
+      ModalRoute.of(context)?.isCurrent != true;
+  closeDialogTimer(int num) {
+    Timer(const Duration(seconds: 3), (() {
+      for (int i = 0; i < num; ++i) {
+        if (_isThereCurrentDialogShowing(context)) {
+          Get.back();
+        }
+      }
+    }));
   }
 
   // ignore: non_constant_identifier_names
@@ -101,12 +121,16 @@ class _ShowNamePageState extends State<ShowNamePage> {
       const SizedBox(
         height: 10,
       ),
-      Obx(() => Center(
+      Obx(() => Container(
+            margin: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+            ),
+            alignment: Alignment.centerLeft,
             child: Text(
               'Door Name: ${door.Name}',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Colors.grey[700],
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                  color: Colors.grey,
                   fontSize: 25,
                   fontWeight: FontWeight.w700),
             ),

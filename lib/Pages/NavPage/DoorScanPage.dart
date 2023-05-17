@@ -12,6 +12,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
 
+import '../../PopUpDialog/ErrorDialog.dart';
+
 class DoorScanPage extends StatefulWidget {
   const DoorScanPage({Key? key}) : super(key: key);
   @override
@@ -26,7 +28,6 @@ class _DoorScanPageState extends State<DoorScanPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   int currentSeed = 0;
   String HintString = 'Scan the QrCode below if you want to open the door.';
-  //String ShowedString = 'Scan the QrCode below if you want to open the door.';
   late final ValueNotifier<String> _ShowedString = ValueNotifier<String>(
       'Scan the QrCode below if you want to open the door.');
   @override
@@ -65,18 +66,26 @@ class _DoorScanPageState extends State<DoorScanPage> {
         for (int i = 0; i < 200; i++) {
           xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
         }
-        Uint8List UserShare =
-            door.TransformShareData(xorUserShare); // Share Len:400
-        //String Username = GetUserName(UserShare);
-        /*
-        if(isblacklist()){
-        }else{
-        }
-        */
-        //Uint8List UserShare = door.usershare;
-        if (isCorrectKey(UserShare)) {
-          door.insertNameRecord('Hey');
-          door.unlock();
+        if (!door.isblacklist(base64Encode(xorUserShare))) {
+          String Username = '';
+          Uint8List UserShare =
+              door.TransformShareData(xorUserShare); // Share Len:400
+          try {
+            Username = GetUserName(UserShare);
+          } catch (e) {
+            Username = 'Cannot be decoded';
+            ErrorDialog('User name error', e.toString());
+          }
+          if (isCorrectKey(UserShare)) {
+            door.insertNameRecord(Username);
+            door.unlock();
+          }
+        } else {
+          _ShowedString.value = 'You are in the black list!';
+          Timer.periodic(const Duration(seconds: 5), (timer) {
+            _ShowedString.value = HintString;
+            timer.cancel();
+          });
         }
       }
     });
@@ -86,7 +95,6 @@ class _DoorScanPageState extends State<DoorScanPage> {
     assert(UserShare.length == 400);
     Uint8List DoorShare = door.share;
     Uint8List Secret = door.secret;
-
     for (int i = 0; i < 400; ++i) {
       var tmp = UserShare[i] | DoorShare[i];
       var count = 0;
@@ -99,33 +107,24 @@ class _DoorScanPageState extends State<DoorScanPage> {
   }
 
   String GetUserName(Uint8List UserShare) {
-    /*
-    Uint8List UserName = Uint8List(50);
-    String ret = '';
-    for (int i = 0; i < 400; ++i) {
-      var UserSubpixelCount = 0;
-      for (int u = 0; u < 4; ++u) {
-        if ((UserShare[i] >> u & 1) == 1) ++UserSubpixelCount;
-      }
-      assert(UserSubpixelCount == 2 || UserSubpixelCount == 3);
-      UserName[i ~/ 8] |= (UserSubpixelCount == 2 ? 0 : 1) << (i % 8);
-    }
-    for (int i = 0; i < 50 ; ++i) {
-      ret += String.fromCharCode(UserShare[i]);
-    }
-    return ret;
-    */
-    
     List<int> UserName = List.filled(50, 0);
+    int CountList = 0;
     for (int i = 0; i < 400; ++i) {
       var UserSubpixelCount = 0;
       for (int u = 0; u < 4; ++u) {
         if ((UserShare[i] >> u & 1) == 1) ++UserSubpixelCount;
       }
       assert(UserSubpixelCount == 2 || UserSubpixelCount == 3);
-      UserName[i ~/ 8] |= (UserSubpixelCount == 2 ? 0 : 1) << (i % 8);
+      UserName[i ~/ 8] |=
+          (UserSubpixelCount == 2 ? 0 : 1) << (i % 8); //reverse: 7 - (i%8)
+      if (i%8 == 0) {
+        ++CountList;
+      }
+      if (i == (CountList*8 - 1) && UserName[i ~/ 8] == 0) {
+        break;
+      }
     }
-    return utf8.decode(UserName);
+    return utf8.decode(UserName.sublist(0, CountList - 1));
   }
 
   @override
@@ -147,7 +146,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
       Center(
           child: ValueListenableBuilder<String>(
               builder: (context, value, child) {
-                return Text(value, //
+                return Text(value,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         color: Color.fromARGB(255, 208, 157, 6),

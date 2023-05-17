@@ -10,10 +10,10 @@ import 'package:door/main.dart';
 import 'package:flutter/services.dart';
 
 import '../DoorController/DoorRunning_controller.dart';
+import 'package:door/PopUpDialog/lottieDialog/DoneDialog.dart';
 import '../PopUpDialog/ErrorDialog.dart';
 import '../PopUpDialog/NohttpDialog.dart';
-
-import 'package:image/image.dart' as img;
+//import '../PopUpDialog/NohttpDialog.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -26,56 +26,20 @@ class _SignUpState extends State<SignUp> {
   TextEditingController NameController = TextEditingController();
   TextEditingController IpController = TextEditingController();
   TextEditingController PortController = TextEditingController();
-  String serverAdd = '127.168.0.0.1:8000';
+  String serverAdd = '10.201.35.40:8000'; //
   //#################################################################
   late DoorController door = Get.find<DoorController>();
   Uint8List secret = Uint8List.fromList(List.filled(50, 0));
   Uint8List DoorShare = Uint8List.fromList(List.filled(200, 0));
   Uint8List UserShare = Uint8List.fromList(List.filled(200, 0));
+  String secret64 =
+      "SUNh2uxvZKqvmBZx7ABjIHWJOay3W2NofvZ7u5nd0HjjrSpcdEhGyPl51MTR+56jtMg=";
+  String doorShare64 =
+      "p1Xryto115a7yX2mnJlmlZxjzMasWlPGWTyapmbFlqpWpTw6NWWjOmlpPGOWxTo5M6mqPMOVqVbMWWNWVVlllVqjXDyjxjxZaTxWXDw6U5aco1ysxmUzxmVcyarKllkzzFk8ZcM6Y1mWM5mVo8nKNsZprDPFrFlcOWNVqmY2NqlWxcNmWcxTrKaqXKZTxZzMZTk2k2NlzMPJWWNpaVWsk1bMqjqWbMxZZpZsNsqmWmU5VTyVWcpWOTZsrJU8qWZVOqqqacxWw1M=";
+  String userShare64 =
+      "vqfp7XW9xtm+3Km5dmvpfs3cPrl7t+rZNbN5u9Nz6napWunjmZw8w5U2UzY5WcVmmlZcw2amOsUzNZVpw2OWNjVso1NsOqmqxsWpZWbFpmVjPKNZOZlsmZo5OpVpaqxsNqbDyjlVnKZpyWY6XDM1yqmVM8qaU8ajrFY6VTXFyZapbDWZxjOqVVxTqszFOsNjVpbJXDqZVpw8llWmqqnJbMk5VcU5mTM2xclTyVw5PJqWnKNqpjapxsqTY2PDbJqsppVVmlallaw=";
   bool isCorrect = false;
-  @override
-  void initState() {
-    super.initState();
-    rootBundle.load('assets/images/door1_secret.png').then((data) {
-      final buffer = img
-          .decodeImage(data.buffer.asUint8List())!
-          .getBytes(format: img.Format.luminance)
-          .map((e) => e == 0 ? 1 : 0) // e == 0 means e is black
-          .toList();
-
-      setState(() {
-        secret = Uint8List.fromList(LoadSecret(buffer));
-      });
-    });
-
-    rootBundle.load('assets/images/door1_share1.png').then((data) {
-      final buffer = img
-          .decodeImage(data.buffer.asUint8List())!
-          .getBytes(format: img.Format.luminance)
-          .map((e) => e == 0 ? 1 : 0)
-          .toList();
-
-      setState(() {
-        DoorShare = Uint8List.fromList(
-            LoadShare(buffer, 'Door')); // share1 length = 1600
-      });
-    });
-
-    rootBundle.load('assets/images/door1_share2_1.png').then((data) {
-      // UserShare
-      final buffer = img
-          .decodeImage(data.buffer.asUint8List())!
-          .getBytes(format: img.Format.luminance)
-          .map((e) => e == 0 ? 1 : 0)
-          .toList();
-
-      setState(() {
-        UserShare = Uint8List.fromList(
-            LoadShare(buffer, 'User')); // share1 length = 1600
-      });
-    });
-  }
-
+  /*
   List<int> LoadSecret(List<int> Secret) {
     var Ret = List.filled(50, 0);
     for (int i = 0; i < 400; ++i) {
@@ -106,32 +70,47 @@ class _SignUpState extends State<SignUp> {
     }
     return Ret;
   }
-
-
+  */
   //#################################################################
   Future<void> Submit(String name) async {
     ResponseFormat response = await HttpCreate(serverAdd, name);
     if (response.code == 200) {
       response.data['serverAdd'] = serverAdd;
-      Get.offNamed(Routes.NavBar, arguments: response.data);
+      doneDialog('Door created,now navigating to door...');
+      Timer(const Duration(seconds: 2),
+          () => Get.offNamed(Routes.NavBar, arguments: response.data));
     } else {
       if (response.code == -1) {
-        NoHttpDialog(response.data['reason']);
+        NoHttpDialog(response.data['detail']);
         Timer(const Duration(seconds: 2),
             () => Get.offNamed(Routes.NavBar, arguments: ConvertData(name)));
       } else {
-        ErrorDialog(response.data['code'], response.data['reason']);
+        ErrorDialog(response.data['code'], response.data['detail']);
+        closeDialogTimer(1);
       }
     }
   }
 
+  _isThereCurrentDialogShowing(BuildContext context) =>
+      ModalRoute.of(context)?.isCurrent != true;
+  closeDialogTimer(int num) {
+    Timer(const Duration(seconds: 3), (() {
+      for (int i = 0; i < num; ++i) {
+        if (_isThereCurrentDialogShowing(context)) {
+          Get.back();
+        }
+      }
+    }));
+  }
+
   //  ConvertData is only a testing function
   Map<String, dynamic> ConvertData(String name) {
-    var TempDoorShare = base64Encode(DoorShare);
-    var Secret = base64Encode(secret);
+    //var TempDoorShare = base64Encode(DoorShare);
+    //var Secret = base64Encode(secret);
     Map mp = {
-      "secret": Secret,
-      "doorShare": TempDoorShare,
+      "secret": secret64,
+      "doorShare": doorShare64,
+      "userShare": userShare64,
       "doorName": name,
       "serverAdd": serverAdd,
     };
@@ -255,8 +234,9 @@ class _SignUpState extends State<SignUp> {
                             if (NameController.text.isEmpty) {
                               ErrorDialog('001', 'Name space cannot be empty');
                             }
-                            var encoded = utf8.encode(NameController.text);
-                            var Name = String.fromCharCodes(encoded);
+                            //var encoded = utf8.encode(NameController.text);
+                            //var Name = String.fromCharCodes(encoded);
+                            var Name = NameController.text;
                             if (Name.length > 50) {
                               ErrorDialog('002',
                                   'Name space cannot exceed more than 50 chars.');

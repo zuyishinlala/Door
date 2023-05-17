@@ -16,22 +16,56 @@ Future<ResponseFormat> HttpCreate(String serverAdd, String name) {
 }
 
 Future<ResponseFormat> HttpDelete(String serverAdd, Map map) {
-  return httpRequest(serverAdd, map, 'delete');
+  return httpdelete(serverAdd, map, 'delete');
 }
 
 Future<ResponseFormat> HttpUpdate(String serverAdd, Map map) {
   return httpRequest(serverAdd, map, 'update');
 }
 
+Future<ResponseFormat> httpdelete(
+    String serverAdd, Map map, String mode) async {
+  try {
+    var response = await http.delete(Uri.http(serverAdd, DoorURL.URLs[mode]!),
+        body: json.encode(map),
+        headers: {"Content-Type": "application/json"}).timeout(
+      const Duration(seconds: 5),
+      onTimeout: onTimeout,
+    );
+    var Code = response.statusCode;
+    if (Code == 204) {
+      Map<String, dynamic> Retmp = {};
+      return ResponseFormat(code: Code, data: Retmp);
+    } else {
+      Map<String, dynamic> Data = json.decode(response.body);
+      Map<String, dynamic> Retmp = ToMap(Code, Data);
+      return ResponseFormat(code: Code, data: Retmp);
+    }
+  } catch (e) {
+    String reason;
+    int StatusCode = -4;
+    if (e is SocketException) {
+      StatusCode = -1;
+      reason = "Socket exception: ${e.toString()}";
+    } else if (e is TimeoutException) {
+      reason = "Timeout exception: ${e.toString()}";
+    } else {
+      reason = "Unhandled exception: ${e.toString()}";
+    }
+    Map<String, dynamic> Retmp = ToMap(StatusCode, {"detail": reason});
+    return ResponseFormat(code: StatusCode, data: Retmp);
+  }
+}
+
 Future<ResponseFormat> httpRequest(
     String serverAdd, Map map, String mode) async {
   try {
-    var response = await http
-        .post(Uri.http(serverAdd, DoorURL.URLs[mode]!), body: json.encode(map))
-        .timeout(
-          const Duration(seconds: 5),
-          onTimeout: onTimeout,
-        );
+    var response = await http.post(Uri.http(serverAdd, DoorURL.URLs[mode]!),
+        body: json.encode(map),
+        headers: {"Content-Type": "application/json"}).timeout(
+      const Duration(seconds: 5),
+      onTimeout: onTimeout,
+    );
     var Code = response.statusCode;
     Map<String, dynamic> Data = json.decode(response.body);
     Map<String, dynamic> Retmp = ToMap(Code, Data);
@@ -47,7 +81,7 @@ Future<ResponseFormat> httpRequest(
     } else {
       reason = "Unhandled exception: ${e.toString()}";
     }
-    Map<String, dynamic> Retmp = ToMap(StatusCode, {"reason": reason});
+    Map<String, dynamic> Retmp = ToMap(StatusCode, {"detail": reason});
     return ResponseFormat(code: StatusCode, data: Retmp);
   }
 }
@@ -57,13 +91,10 @@ Map<String, dynamic> ToMap(int StatusCode, Map<String, dynamic> data) {
     case 200:
       return data;
     case 400:
-      return {
-        "code": '$StatusCode-${data['code']}', // Ex: 200-1,
-        "reason": data["reason"]
-      };
+      return {"code": "400", "detail": data["detail"]};
     case 408:
-      return {"code": '$StatusCode', "reason": 'Has http but http Timeout'};
+      return {"code": "408", "detail": 'Has http but http Timeout'};
     default:
-      return {"code": '$StatusCode', "reason": data["reason"]};
+      return {"code": StatusCode.toString(), "detail": data["detail"]};
   }
 }

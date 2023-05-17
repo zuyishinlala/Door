@@ -45,6 +45,8 @@ dependencies:
   flutter_iconly: ^1.0.2
   intl: ^0.18.0
   table_calendar: ^3.0.9
+  lottie: ^2.3.2
+
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +72,7 @@ flutter:
   assets:
     - assets/images/
     - assets/Cropped.jpg
+    - assets/lottie/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

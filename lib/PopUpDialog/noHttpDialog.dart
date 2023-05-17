@@ -12,3 +12,4 @@ Future NoHttpDialog(String reason) {
     backgroundColor: Colors.white,
   );
 }
+

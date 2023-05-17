@@ -10,19 +10,19 @@ import '../Blocks/updateblock.dart';
 
 List<Record> l = [
   Record('Daniel', '11:34:50'),
-  Record('Daniel', '09:34:56'),
-  Record('Daniel', '06:31:18'),
+  Record('John', '09:34:56'),
+  Record('Dennis', '06:31:18'),
 ];
 
 class DoorController extends GetxController {
   final Rx<String> _Name = ''.obs;
   Uint8List secret = Uint8List(0); // 400
-  Uint8List share = Uint8List(0);  // 400
+  Uint8List share = Uint8List(0); // 400
   String serverAdd = '';
-  List<String> BlackList = [];
+  List<String> blacklist = [];
   var updates = <Updateblock>[].obs;
   var locked = true;
-
+  //Uint8List user = Uint8List(0);
   // Fake Data
   Map<String, List<Record>> Maprecords = {
     'April-15 2023': l,
@@ -33,9 +33,60 @@ class DoorController extends GetxController {
   void SetDoor(Map<String, dynamic> json) {
     var Tempname1 = json["doorName"].codeUnits;
     String Temp = utf8.decode(Tempname1);
+    var decodedDoor = base64Decode(json["doorShare"]);
+    //var decodedUser = base64Decode(json["userShare"]);
     _Name.value = Temp;
-    share = TransformShareData(base64Decode(json["doorShare"]));
+    share = TransformShareData(decodedDoor);
     secret = TransformSecretData(base64Decode(json["secret"]));
+    //user = TransformShareData(decodedUser);
+    /*
+    List<int> UserName = List.filled(50, 0);
+    int countLen = 0;
+    for (int i = 0; i < 400; ++i) {
+      var count = 0;
+      for (int shift = 0; shift < 4; ++shift) {
+        if ((user[i] >> shift & 1) == 1) ++count;
+      }
+      assert(count == 2 || count == 3);
+      UserName[i ~/ 8] |= (count == 2 ? 0 : 1) << (i % 8);
+      if (i % 8 == 0) {
+        ++countLen;
+      }
+      if (i == (countLen * 8 - 1) && UserName[i ~/ 8] == 0) {
+        break;
+      }
+    }
+    var TempUserName = utf8.decode(UserName.sublist(0, countLen - 1));
+    print('User Name is ---$TempUserName---');
+    List<int> DoorName = List.filled(50, 0);
+    int countDoorLen = 0;
+    for (int i = 0; i < 400; ++i) {
+      var count = 0;
+      for (int shift = 0; shift < 4; ++shift) {
+        if ((share[i] >> shift & 1) == 1) ++count;
+      }
+      assert(count == 2 || count == 3);
+      DoorName[i ~/ 8] |= (count == 2 ? 0 : 1) << (i % 8);
+      if (i % 8 == 0) {
+        ++countDoorLen;
+      }
+      if (i == (countDoorLen * 8 - 1) && DoorName[i ~/ 8] == 0) {
+        break;
+      }
+    }
+    var TempDoorName = utf8.decode(DoorName.sublist(0, countDoorLen - 1));
+    print('Door Name is ---$TempDoorName---');
+    print('nooo');
+    for (int i = 0; i < 400; ++i) {
+      var tmp = share[i] | user[i];
+      var count = 0;
+      for (int shift = 0; shift < 4; ++shift) {
+        if ((tmp >> shift & 1) == 1) ++count;
+      }
+      assert((count == 3 && secret[i] == 0) || (count == 4 && secret[i] == 1));
+    }
+    print('Ya');
+    */
     serverAdd = json["serverAdd"];
     insertUpdates('Door Created');
   }
@@ -91,7 +142,7 @@ class DoorController extends GetxController {
     String base64encodedSecret = base64Encode(SecretBuffer);
     return {
       "secret": base64encodedSecret,
-      "doorName": NameEncode(_Name.value),
+      "doorName": _Name.value,
     };
   }
 
@@ -107,13 +158,18 @@ class DoorController extends GetxController {
   }
 
   void insertUpdates(String mode) {
-    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
+    String date = DateFormat("yyyy MMMM-dd").format(DateTime.now());
     String time = DateFormat("HH:mm:ss").format(DateTime.now());
     bool showdate = false;
-    if (updates.isEmpty || updates[updates.length - 1].date != date) {       // show date
+    if (updates.isEmpty || updates[updates.length - 1].date != date) {
+      // show date
       showdate = true;
     }
     updates.add(Updateblock(mode, date, time, showdate));
+  }
+
+  bool isblacklist(String UserShare) {
+    return blacklist.contains(UserShare);
   }
 
   get Name => _Name.value;
