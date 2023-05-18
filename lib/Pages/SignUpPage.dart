@@ -76,17 +76,16 @@ class _SignUpState extends State<SignUp> {
     ResponseFormat response = await HttpCreate(serverAdd, name);
     if (response.code == 200) {
       response.data['serverAdd'] = serverAdd;
-      doneDialog('Door created,now navigating to door...');
+      doneDialog('Door created!now navigating to door...');
       Timer(const Duration(seconds: 2),
           () => Get.offNamed(Routes.NavBar, arguments: response.data));
     } else {
       if (response.code == -1) {
         NoHttpDialog(response.data['detail']);
         Timer(const Duration(seconds: 2),
-            () => Get.offNamed(Routes.NavBar, arguments: ConvertData(name)));
+            () => Get.offNamed(Routes.NavBar, arguments: ConvertData()));
       } else {
         ErrorDialog(response.data['code'], response.data['detail']);
-        closeDialogTimer(1);
       }
     }
   }
@@ -104,14 +103,11 @@ class _SignUpState extends State<SignUp> {
   }
 
   //  ConvertData is only a testing function
-  Map<String, dynamic> ConvertData(String name) {
-    //var TempDoorShare = base64Encode(DoorShare);
-    //var Secret = base64Encode(secret);
+  Map<String, dynamic> ConvertData() {
     Map mp = {
       "secret": secret64,
       "doorShare": doorShare64,
-      "userShare": userShare64,
-      "doorName": name,
+      "doorName": "abc",
       "serverAdd": serverAdd,
     };
     String encodedmp = json.encode(mp);
@@ -234,10 +230,10 @@ class _SignUpState extends State<SignUp> {
                             if (NameController.text.isEmpty) {
                               ErrorDialog('001', 'Name space cannot be empty');
                             }
-                            //var encoded = utf8.encode(NameController.text);
-                            //var Name = String.fromCharCodes(encoded);
                             var Name = NameController.text;
-                            if (Name.length > 50) {
+                            var encoded = utf8.encode(Name);
+                            var NameLength = String.fromCharCodes(encoded).length;
+                            if (NameLength > 50) {
                               ErrorDialog('002',
                                   'Name space cannot exceed more than 50 chars.');
                             } else {
@@ -334,6 +330,7 @@ class _SignUpState extends State<SignUp> {
                                     setURL(
                                         IpController.text, PortController.text);
                                     Get.back();
+                                    doneDialog('Ip was set at: $serverAdd');
                                   },
                                 )
                               ]));

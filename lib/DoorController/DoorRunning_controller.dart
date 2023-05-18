@@ -33,9 +33,8 @@ class DoorController extends GetxController {
   void SetDoor(Map<String, dynamic> json) {
     var Tempname1 = json["doorName"].codeUnits;
     String Temp = utf8.decode(Tempname1);
-    var decodedDoor = base64Decode(json["doorShare"]);
-    //var decodedUser = base64Decode(json["userShare"]);
     _Name.value = Temp;
+    var decodedDoor = base64Decode(json["doorShare"]);
     share = TransformShareData(decodedDoor);
     secret = TransformSecretData(base64Decode(json["secret"]));
     //user = TransformShareData(decodedUser);
