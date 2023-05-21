@@ -114,7 +114,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
           return AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
-            title: const Text('Name Page'),
+            title: const Text('About this door'),
           );
         },
       ),

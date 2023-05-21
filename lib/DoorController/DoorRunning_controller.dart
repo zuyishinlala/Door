@@ -22,7 +22,6 @@ class DoorController extends GetxController {
   List<String> blacklist = [];
   var updates = <Updateblock>[].obs;
   var locked = true;
-  //Uint8List user = Uint8List(0);
   // Fake Data
   Map<String, List<Record>> Maprecords = {
     'April-15 2023': l,
@@ -146,7 +145,7 @@ class DoorController extends GetxController {
   }
 
   void insertNameRecord(String Name) {
-    String date = DateFormat("yyyy MMMM-dd").format(DateTime.now());
+    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
     String time = DateFormat("HH:mm:ss").format(DateTime.now());
     Record record = Record(Name, time);
     if (Maprecords[date] != null) {
@@ -172,8 +171,4 @@ class DoorController extends GetxController {
   }
 
   get Name => _Name.value;
-  String NameEncode(String name) {
-    var encoded = utf8.encode(name);
-    return String.fromCharCodes(encoded);
-  }
 }

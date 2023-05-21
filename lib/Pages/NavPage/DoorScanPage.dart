@@ -23,7 +23,7 @@ class DoorScanPage extends StatefulWidget {
 class _DoorScanPageState extends State<DoorScanPage> {
   late DoorController door = Get.find<DoorController>();
   late Timer _timer;
-
+  DateTime? lastScan;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   int currentSeed = 0;
@@ -36,6 +36,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
     seedRefresh();
     _timer =
         Timer.periodic(const Duration(seconds: 60), (Timer t) => seedRefresh());
+    lastScan = DateTime.now();
   }
 
   void seedRefresh() {
@@ -55,9 +56,12 @@ class _DoorScanPageState extends State<DoorScanPage> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (door.locked && scanData.code != null) {
+      final currentScan = DateTime.now();
+      if (door.locked &&
+          scanData.code != null &&
+          currentScan.difference(lastScan!) > const Duration(seconds: 2)) { // scan 1 time per second
         _ShowedString.value = 'User QR Code scanned!';
-        Timer.periodic(const Duration(seconds: 5), (timer) {
+        Timer.periodic(const Duration(seconds: 1), (timer) {
           _ShowedString.value = HintString;
           timer.cancel();
         });
@@ -87,6 +91,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
             timer.cancel();
           });
         }
+        lastScan = currentScan;
       }
     });
   }
@@ -117,10 +122,10 @@ class _DoorScanPageState extends State<DoorScanPage> {
       assert(UserSubpixelCount == 2 || UserSubpixelCount == 3);
       UserName[i ~/ 8] |=
           (UserSubpixelCount == 2 ? 0 : 1) << (i % 8); //reverse: 7 - (i%8)
-      if (i%8 == 0) {
+      if (i % 8 == 0) {
         ++CountList;
       }
-      if (i == (CountList*8 - 1) && UserName[i ~/ 8] == 0) {
+      if (i == (CountList * 8 - 1) && UserName[i ~/ 8] == 0) {
         break;
       }
     }
