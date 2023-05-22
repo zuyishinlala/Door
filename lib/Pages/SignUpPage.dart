@@ -13,7 +13,6 @@ import '../DoorController/DoorRunning_controller.dart';
 import 'package:door/PopUpDialog/lottieDialog/DoneDialog.dart';
 import '../PopUpDialog/ErrorDialog.dart';
 import '../PopUpDialog/NohttpDialog.dart';
-//import '../PopUpDialog/NohttpDialog.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -26,7 +25,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController NameController = TextEditingController();
   TextEditingController IpController = TextEditingController();
   TextEditingController PortController = TextEditingController();
-  String serverAdd = '10.201.35.40:8000'; //
+  String serverAdd = '10.201.35.40:8000'; 
   //#################################################################
   late DoorController door = Get.find<DoorController>();
   Uint8List secret = Uint8List.fromList(List.filled(50, 0));
@@ -76,7 +75,7 @@ class _SignUpState extends State<SignUp> {
     ResponseFormat response = await HttpCreate(serverAdd, name);
     if (response.code == 200) {
       response.data['serverAdd'] = serverAdd;
-      doneDialog('Door created!now navigating to door...');
+      doneDialog('Door created!\nnow navigating to door...');
       Timer(const Duration(seconds: 2),
           () => Get.offNamed(Routes.NavBar, arguments: response.data));
     } else {
@@ -106,8 +105,8 @@ class _SignUpState extends State<SignUp> {
   Map<String, dynamic> ConvertData() {
     Map mp = {
       "secret": secret64,
-      "doorShare": doorShare64,
-      "doorName": "abc",
+      "share": doorShare64,
+      "door_name": "abc",
       "serverAdd": serverAdd,
     };
     String encodedmp = json.encode(mp);
@@ -329,8 +328,11 @@ class _SignUpState extends State<SignUp> {
                                   onPressed: () {
                                     setURL(
                                         IpController.text, PortController.text);
+                                    IpController.clear();
+                                    PortController.clear();
                                     Get.back();
                                     doneDialog('Ip was set at: $serverAdd');
+                                    closeDialogTimer(1);
                                   },
                                 )
                               ]));

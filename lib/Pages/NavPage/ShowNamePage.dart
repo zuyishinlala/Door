@@ -23,14 +23,27 @@ class ShowNamePage extends StatefulWidget {
 class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
   late MediaQueryData queryData = queryData = MediaQuery.of(context);
-
+  late Timer timer;
+  @override
+  void initState() {
+    super.initState();
+    timer =
+        Timer.periodic(const Duration(minutes: 2), (Timer t) => update());
+  }
   Future<void> update() async {
     ResponseFormat response =
         await HttpUpdate(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
       doneDialog('Door updated successfully!');
-      door.UpdateDoor(response.data);
-      door.insertUpdates('Door updated');
+      door.UpdateDoor(response.data['share'], response.data['secret']);
+      var rest = response.data["is_blacklisted"]
+          as List;
+      List<String> newblacklist = rest.map(((item) => item as String)).toList();
+      if (newblacklist.isNotEmpty) {
+        door.blacklist.addAll(newblacklist);
+        door.insertUpdates(
+            '${newblacklist.length} users were added into blacklist');
+      }
       closeDialogTimer(2);
     } else {
       ErrorDialog(response.data['code'], response.data['detail']);
@@ -145,7 +158,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
           textAlign: TextAlign.left,
           style: TextStyle(
               color: Color.fromARGB(255, 86, 143, 171),
-              fontSize: 30,
+              fontSize: 25,
               fontWeight: FontWeight.w700),
         ),
       ),

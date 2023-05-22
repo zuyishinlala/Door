@@ -30,13 +30,98 @@ class DoorController extends GetxController {
   };
 
   void SetDoor(Map<String, dynamic> json) {
-    var Tempname1 = json["doorName"].codeUnits;
+    var Tempname1 = json["door_name"].codeUnits;
     String Temp = utf8.decode(Tempname1);
     _Name.value = Temp;
-    var decodedDoor = base64Decode(json["doorShare"]);
-    share = TransformShareData(decodedDoor);
+    share = TransformShareData(base64Decode(json["share"]));
     secret = TransformSecretData(base64Decode(json["secret"]));
-    //user = TransformShareData(decodedUser);
+    serverAdd = json["serverAdd"];
+    insertUpdates('Door Created');
+  }
+
+  unlock() {
+    locked = false;
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      locked = true;
+      update(['AppBar']);
+      timer.cancel();
+    });
+    update(['AppBar']);
+  }
+
+  Uint8List TransformShareData(Uint8List data) {
+    var buffer = data
+        .map((e) {
+          var tmp = List.filled(2, 0);
+          for (int i = 0; i < 2; ++i) {
+            tmp[i] = (e >> (4 * i)) & 15;
+          }
+          return tmp;
+        })
+        .expand((e) => e)
+        .toList();
+    return Uint8List.fromList(buffer);
+  }
+
+  Uint8List TransformSecretData(Uint8List data) {
+    var buffer = data
+        .map((e) {
+          final tmp = List.filled(8, 0);
+          for (int idx = 0; idx < 8; idx++) {
+            tmp[idx] = (e >> idx) & 1;
+          }
+          return tmp;
+        })
+        .expand((e) => e)
+        .toList();
+    return Uint8List.fromList(buffer);
+  }
+
+  void UpdateDoor(String share64, String secret64) {
+    share = TransformShareData(base64Decode(share64));
+    secret = TransformSecretData(base64Decode(secret64));
+  }
+
+  Map<String, dynamic> DoorRequest() {
+    var SecretBuffer = Uint8List(50);
+    for (int i = 0; i < secret.length; ++i) {
+      SecretBuffer[i ~/ 8] |= (secret[i] << (i % 8));
+    }
+    String base64encodedSecret = base64Encode(SecretBuffer);
+    return {
+      "secret": base64encodedSecret,
+    };
+  }
+
+  void insertNameRecord(String Name) {
+    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+    Record record = Record(Name, time);
+    if (Maprecords[date] != null) {
+      Maprecords[date]?.insert(0, record);
+    } else {
+      Maprecords[date] = [record];
+    }
+  }
+
+  void insertUpdates(String mode) {
+    String date = DateFormat("yyyy MMMM-dd").format(DateTime.now());
+    String time = DateFormat("HH:mm:ss").format(DateTime.now());
+    bool showdate = false;
+    if (updates.isEmpty || updates[updates.length - 1].date != date) {
+      // show date
+      showdate = true;
+    }
+    updates.add(Updateblock(mode, date, time, showdate));
+  }
+
+  bool isblacklist(String UserShare) {
+    return blacklist.contains(UserShare);
+  }
+  get Name => _Name.value;
+}
+
+//user = TransformShareData(decodedUser);
     /*
     List<int> UserName = List.filled(50, 0);
     int countLen = 0;
@@ -85,90 +170,3 @@ class DoorController extends GetxController {
     }
     print('Ya');
     */
-    serverAdd = json["serverAdd"];
-    insertUpdates('Door Created');
-  }
-
-  unlock() {
-    locked = false;
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-      locked = true;
-      update(['AppBar']);
-      timer.cancel();
-    });
-    update(['AppBar']);
-  }
-
-  Uint8List TransformShareData(Uint8List data) {
-    var buffer = data
-        .map((e) {
-          var tmp = List.filled(2, 0);
-          for (int i = 0; i < 2; ++i) {
-            tmp[i] = (e >> (4 * i)) & 15;
-          }
-          return tmp;
-        })
-        .expand((e) => e)
-        .toList();
-    return Uint8List.fromList(buffer);
-  }
-
-  Uint8List TransformSecretData(Uint8List data) {
-    var buffer = data
-        .map((e) {
-          final tmp = List.filled(8, 0);
-          for (int idx = 0; idx < 8; idx++) {
-            tmp[idx] = (e >> idx) & 1;
-          }
-          return tmp;
-        })
-        .expand((e) => e)
-        .toList();
-    return Uint8List.fromList(buffer);
-  }
-
-  void UpdateDoor(Map<String, dynamic> json) {
-    share = TransformShareData(base64Decode(json["doorShare"]));
-    secret = TransformSecretData(base64Decode(json["secret"]));
-  }
-
-  Map<String, dynamic> DoorRequest() {
-    var SecretBuffer = Uint8List(50);
-    for (int i = 0; i < secret.length; ++i) {
-      SecretBuffer[i ~/ 8] |= (secret[i] << (i % 8));
-    }
-    String base64encodedSecret = base64Encode(SecretBuffer);
-    return {
-      "secret": base64encodedSecret,
-      "doorName": _Name.value,
-    };
-  }
-
-  void insertNameRecord(String Name) {
-    String date = DateFormat("MMMM-dd yyyy").format(DateTime.now());
-    String time = DateFormat("HH:mm:ss").format(DateTime.now());
-    Record record = Record(Name, time);
-    if (Maprecords[date] != null) {
-      Maprecords[date]?.insert(0, record);
-    } else {
-      Maprecords[date] = [record];
-    }
-  }
-
-  void insertUpdates(String mode) {
-    String date = DateFormat("yyyy MMMM-dd").format(DateTime.now());
-    String time = DateFormat("HH:mm:ss").format(DateTime.now());
-    bool showdate = false;
-    if (updates.isEmpty || updates[updates.length - 1].date != date) {
-      // show date
-      showdate = true;
-    }
-    updates.add(Updateblock(mode, date, time, showdate));
-  }
-
-  bool isblacklist(String UserShare) {
-    return blacklist.contains(UserShare);
-  }
-
-  get Name => _Name.value;
-}

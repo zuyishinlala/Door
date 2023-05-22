@@ -11,7 +11,7 @@ import 'DoorURL.dart';
 FutureOr<http.Response> onTimeout() => http.Response(json.encode({}), 408);
 
 Future<ResponseFormat> HttpCreate(String serverAdd, String name) {
-  Map map = {'doorName': name};
+  Map map = {'door_name': name};
   return httpRequest(serverAdd, map, 'create');
 }
 
@@ -21,10 +21,6 @@ Future<ResponseFormat> HttpDelete(String serverAdd, Map map) {
 
 Future<ResponseFormat> HttpUpdate(String serverAdd, Map map) {
   return httpRequest(serverAdd, map, 'update');
-}
-
-Future<ResponseFormat> HttpGetList(String serverAdd, Map map) {
-  return httpRequest(serverAdd, map, 'getlist');
 }
 
 Future<ResponseFormat> httpdelete(

@@ -11,9 +11,6 @@ import 'package:door/Pages/NavPage/RecordPage.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
-import '../Https/HttpResponseFormat.dart';
-import '../Https/Https.dart';
-
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
   @override
@@ -23,14 +20,11 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   final controller = Get.put(NavBarController());
   late DoorController door = Get.find<DoorController>();
-  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     getData();
-    _timer = Timer.periodic(
-        const Duration(seconds: 60), (Timer t) => getBlackList());
   }
 
   Future<void> getData() async {
@@ -38,23 +32,8 @@ class _NavBarState extends State<NavBar> {
     door.SetDoor(map);
   }
 
-  Future<void> getBlackList() async {
-    ResponseFormat response =
-        await HttpGetList(door.serverAdd, door.DoorRequest());
-    if (response.code == 200) {
-      var rest = response.data[""] as List;       // todo: revise the name of the list
-      List<String> newblacklist = rest.map(((item) => item as String)).toList();
-      if (newblacklist.isNotEmpty) {
-        door.blacklist.addAll(newblacklist);
-        door.insertUpdates('${newblacklist.length} users were added into blacklist');
-      }
-      //ErrorDialog(response.data['code'], response.data['detail']);
-    } 
-  }
-
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
   }
 

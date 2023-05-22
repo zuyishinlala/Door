@@ -59,14 +59,14 @@ class _DoorScanPageState extends State<DoorScanPage> {
       final currentScan = DateTime.now();
       if (door.locked &&
           scanData.code != null &&
-          currentScan.difference(lastScan!) > const Duration(seconds: 2)) { // scan 1 time per second
+          currentScan.difference(lastScan!) > const Duration(seconds: 1)) {
         _ShowedString.value = 'User QR Code scanned!';
-        Timer.periodic(const Duration(seconds: 1), (timer) {
-          _ShowedString.value = HintString;
-          timer.cancel();
-        });
+        Timer(const Duration(milliseconds: 500), (() {
+            _ShowedString.value = HintString;
+        }));
         Uint8List xorUserShare = base64Decode(scanData.code!);
         Random random = Random(currentSeed);
+        assert(xorUserShare.length == 200);
         for (int i = 0; i < 200; i++) {
           xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
         }
@@ -76,13 +76,13 @@ class _DoorScanPageState extends State<DoorScanPage> {
               door.TransformShareData(xorUserShare); // Share Len:400
           try {
             Username = GetUserName(UserShare);
+            if (isCorrectKey(UserShare)) {
+              door.insertNameRecord(Username);
+              door.unlock();
+            }
           } catch (e) {
             Username = 'Cannot be decoded';
             ErrorDialog('User name error', e.toString());
-          }
-          if (isCorrectKey(UserShare)) {
-            door.insertNameRecord(Username);
-            door.unlock();
           }
         } else {
           _ShowedString.value = 'You are in the black list!';
