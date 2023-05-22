@@ -23,6 +23,10 @@ Future<ResponseFormat> HttpUpdate(String serverAdd, Map map) {
   return httpRequest(serverAdd, map, 'update');
 }
 
+Future<ResponseFormat> HttpGetList(String serverAdd, Map map) {
+  return httpRequest(serverAdd, map, 'getlist');
+}
+
 Future<ResponseFormat> httpdelete(
     String serverAdd, Map map, String mode) async {
   try {

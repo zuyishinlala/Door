@@ -40,7 +40,7 @@ class _NavBarState extends State<NavBar> {
 
   Future<void> getBlackList() async {
     ResponseFormat response =
-        await HttpUpdate(door.serverAdd, door.DoorRequest());
+        await HttpGetList(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
       var rest = response.data[""] as List;       // todo: revise the name of the list
       List<String> newblacklist = rest.map(((item) => item as String)).toList();

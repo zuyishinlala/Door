@@ -4,6 +4,7 @@ abstract class DoorURL {
   static const Map<String, String> URLs = {
           'create': '/createDoor',
           'delete': '/deleteDoor',
-          'update': '/updateDoor'
+          'update': '/updateDoor',
+          'getlist': '/getlist',
         };
 }
