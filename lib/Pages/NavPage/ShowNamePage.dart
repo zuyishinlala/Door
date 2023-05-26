@@ -24,27 +24,25 @@ class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
   late MediaQueryData queryData = queryData = MediaQuery.of(context);
   late Timer timer;
+
   @override
   void initState() {
     super.initState();
-    timer =
-        Timer.periodic(const Duration(minutes: 2), (Timer t) => update());
+    timer = Timer.periodic(const Duration(seconds: 5), (Timer t) => update());
   }
+
   Future<void> update() async {
     ResponseFormat response =
         await HttpUpdate(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
-      doneDialog('Door updated successfully!');
       door.UpdateDoor(response.data['share'], response.data['secret']);
-      var rest = response.data["is_blacklisted"]
-          as List;
+      var rest = response.data["is_blacklisted"] as List;
       List<String> newblacklist = rest.map(((item) => item as String)).toList();
       if (newblacklist.isNotEmpty) {
         door.blacklist.addAll(newblacklist);
         door.insertUpdates(
             '${newblacklist.length} users were added into blacklist');
       }
-      closeDialogTimer(2);
     } else {
       ErrorDialog(response.data['code'], response.data['detail']);
       closeDialogTimer(1);
@@ -56,14 +54,16 @@ class _ShowNamePageState extends State<ShowNamePage> {
         await HttpDelete(door.serverAdd, door.DoorRequest());
     if (response.code == 200 || response.code == 204) {
       doneDialog('Door deleted successfully, bye!');
-      Timer(const Duration(seconds: 2), (() {
+      Timer(const Duration(seconds: 3), (() {
+        timer.cancel();
         Get.delete<DoorController>(force: true);
         Get.offNamed(Routes.SignUp);
       }));
     } else {
       if (response.code == -1) {
+        timer.cancel();
         Get.delete<DoorController>(force: true);
-        Timer(const Duration(seconds: 2), () => Get.offNamed(Routes.SignUp));
+        Timer(const Duration(seconds: 3), () => Get.offNamed(Routes.SignUp));
         NoHttpDialog(response.data['detail']);
       } else {
         ErrorDialog(response.data['code'], response.data['detail']);
@@ -74,8 +74,9 @@ class _ShowNamePageState extends State<ShowNamePage> {
 
   _isThereCurrentDialogShowing(BuildContext context) =>
       ModalRoute.of(context)?.isCurrent != true;
+
   closeDialogTimer(int num) {
-    Timer(const Duration(seconds: 3), (() {
+    Timer(const Duration(seconds: 2), (() {
       for (int i = 0; i < num; ++i) {
         if (_isThereCurrentDialogShowing(context)) {
           Get.back();
@@ -113,7 +114,15 @@ class _ShowNamePageState extends State<ShowNamePage> {
             cancelTextColor: Colors.black,
             textConfirm: 'Yes',
             confirmTextColor: Colors.black,
-            onConfirm: () => mode == 'Delete' ? delete() : update());
+            onConfirm: () {
+              Get.back();
+              mode == 'Delete' ? {delete()}
+              : {
+                  doneDialog('Door updated successfully!'),
+                  closeDialogTimer(1),
+                  update(),
+                };
+            });
       },
     );
   }
@@ -125,10 +134,10 @@ class _ShowNamePageState extends State<ShowNamePage> {
         id: 'AppBar',
         builder: (door) {
           return AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
-            title: const Text('About this door'),
-          );
+              automaticallyImplyLeading: false,
+              backgroundColor:
+                  door.locked ? Colors.red[400] : Colors.green[400],
+              title: const Text('About this door'));
         },
       ),
       const SizedBox(

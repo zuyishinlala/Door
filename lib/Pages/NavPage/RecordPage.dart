@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, file_names
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
 import 'package:get/get.dart';
@@ -9,7 +11,6 @@ import 'package:door/Blocks/record.dart';
 
 class RecordPage extends StatefulWidget {
   const RecordPage({super.key});
-
   @override
   RecordPageState createState() => RecordPageState();
 }
@@ -19,10 +20,13 @@ class RecordPageState extends State<RecordPage> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusDay = DateTime.now();
   late final ValueNotifier<List<Record>> _selectedEvents;
+  late Timer _timer;
   @override
   void initState() {
     super.initState();
     _selectedEvents = ValueNotifier(_getEventsfromDay(_selectedDay));
+    _timer = Timer.periodic(const Duration(seconds: 5),
+        (Timer t) => _onDaySelected(_selectedDay, _focusDay));
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -105,5 +109,11 @@ class RecordPageState extends State<RecordPage> {
         ),
       )
     ]);
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 }

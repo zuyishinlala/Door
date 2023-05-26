@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names, file_names
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -11,8 +12,6 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
 import 'package:door/DoorController/DoorRunning_controller.dart';
-
-import '../../PopUpDialog/ErrorDialog.dart';
 
 class DoorScanPage extends StatefulWidget {
   const DoorScanPage({Key? key}) : super(key: key);
@@ -26,14 +25,15 @@ class _DoorScanPageState extends State<DoorScanPage> {
   DateTime? lastScan;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  int currentSeed = 0;
+  final seedQueue = Queue<int>();
   String HintString = 'Scan the QrCode below if you want to open the door.';
   late final ValueNotifier<String> _ShowedString = ValueNotifier<String>(
       'Scan the QrCode below if you want to open the door.');
   @override
   void initState() {
     super.initState();
-    seedRefresh();
+    seedQueue.addLast(DateTime.now().millisecondsSinceEpoch);
+    seedQueue.addLast(DateTime.now().millisecondsSinceEpoch + 10);
     _timer =
         Timer.periodic(const Duration(seconds: 60), (Timer t) => seedRefresh());
     lastScan = DateTime.now();
@@ -41,7 +41,8 @@ class _DoorScanPageState extends State<DoorScanPage> {
 
   void seedRefresh() {
     setState(() {
-      currentSeed = DateTime.now().millisecondsSinceEpoch;
+      seedQueue.addLast(DateTime.now().millisecondsSinceEpoch);
+      seedQueue.removeFirst();
     });
   }
 
@@ -62,34 +63,39 @@ class _DoorScanPageState extends State<DoorScanPage> {
           currentScan.difference(lastScan!) > const Duration(seconds: 1)) {
         _ShowedString.value = 'User QR Code scanned!';
         Timer(const Duration(milliseconds: 500), (() {
-            _ShowedString.value = HintString;
+          _ShowedString.value = HintString;
         }));
         Uint8List xorUserShare = base64Decode(scanData.code!);
-        Random random = Random(currentSeed);
         assert(xorUserShare.length == 200);
-        for (int i = 0; i < 200; i++) {
-          xorUserShare[i] = xorUserShare[i] ^ random.nextInt(256);
-        }
-        if (!door.isblacklist(base64Encode(xorUserShare))) {
-          String Username = '';
-          Uint8List UserShare =
-              door.TransformShareData(xorUserShare); // Share Len:400
-          try {
-            Username = GetUserName(UserShare);
-            if (isCorrectKey(UserShare)) {
-              door.insertNameRecord(Username);
-              door.unlock();
+        bool isopen = false;
+        for (int seedidx = 0; seedidx < 2; ++seedidx) {
+          if (!isopen) {
+            Uint8List TempUserShare = xorUserShare;
+            Random random = Random(seedQueue.elementAt(seedidx));
+            for (int i = 0; i < 200; i++) {
+              TempUserShare[i] = TempUserShare[i] ^ random.nextInt(256);
             }
-          } catch (e) {
-            Username = 'Cannot be decoded';
-            ErrorDialog('User name error', e.toString());
+            if (!door.isblacklist(base64Encode(TempUserShare))) {
+              String Username = '';
+              Uint8List UserShare =
+                  door.TransformShareData(TempUserShare); // Share Len : 400
+              try {
+                Username = GetUserName(UserShare);
+              } catch (e) {
+                Username = 'Cannot be decoded';
+              }
+              if (!isopen && isCorrectKey(UserShare)) {
+                isopen = true;
+                door.insertNameRecord(Username);
+                door.unlock();
+              }
+            } else {
+              _ShowedString.value = 'You are in the black list!';
+              Timer(const Duration(milliseconds: 500), (() {
+                _ShowedString.value = HintString;
+              }));
+            }
           }
-        } else {
-          _ShowedString.value = 'You are in the black list!';
-          Timer.periodic(const Duration(seconds: 5), (timer) {
-            _ShowedString.value = HintString;
-            timer.cancel();
-          });
         }
         lastScan = currentScan;
       }
@@ -106,7 +112,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
       for (int shift = 0; shift < 4; ++shift) {
         if ((tmp >> shift & 1) == 1) ++count;
       }
-      assert((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1));
+      if (!((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1))) {return false;}
     }
     return true;
   }
@@ -142,6 +148,17 @@ class _DoorScanPageState extends State<DoorScanPage> {
             automaticallyImplyLeading: false,
             backgroundColor: door.locked ? Colors.red[400] : Colors.green[400],
             title: Text(door.locked ? 'Locked' : 'Pass!'),
+            actions: <Widget>[
+              IconButton(
+                icon: const Icon(
+                  Icons.refresh,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  seedRefresh();
+                },
+              )
+            ],
           );
         },
       ),
@@ -167,7 +184,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
               child: QrImage(
-                data: "d=${door.Name}&s=$currentSeed",
+                data: "d=${door.Name}&s=${seedQueue.elementAt(1)}",
                 version: 10,
                 errorCorrectionLevel: QrErrorCorrectLevel.L,
               ),

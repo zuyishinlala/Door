@@ -118,6 +118,7 @@ class DoorController extends GetxController {
   bool isblacklist(String UserShare) {
     return blacklist.contains(UserShare);
   }
+
   get Name => _Name.value;
 }
 
