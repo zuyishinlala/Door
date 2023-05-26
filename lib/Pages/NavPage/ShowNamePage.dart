@@ -24,7 +24,9 @@ class _ShowNamePageState extends State<ShowNamePage> {
   late DoorController door = Get.find<DoorController>();
   late MediaQueryData queryData = queryData = MediaQuery.of(context);
   late Timer timer;
-
+  ValueNotifier<String> connecthint = ValueNotifier('Connected');
+  late String responseCode = 'None';
+  late String errordetail = 'No Detail';
   @override
   void initState() {
     super.initState();
@@ -35,6 +37,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
     ResponseFormat response =
         await HttpUpdate(door.serverAdd, door.DoorRequest());
     if (response.code == 200) {
+      connecthint.value = 'Connected';
       door.UpdateDoor(response.data['share'], response.data['secret']);
       var rest = response.data["is_blacklisted"] as List;
       List<String> newblacklist = rest.map(((item) => item as String)).toList();
@@ -44,9 +47,10 @@ class _ShowNamePageState extends State<ShowNamePage> {
             '${newblacklist.length} users were added into blacklist');
       }
     } else {
-      ErrorDialog(response.data['code'], response.data['detail']);
-      closeDialogTimer(1);
+      connecthint.value = 'Not connected';
+      errordetail = response.data['detail'];
     }
+    responseCode = response.code.toString();
   }
 
   Future<void> delete() async {
@@ -116,12 +120,17 @@ class _ShowNamePageState extends State<ShowNamePage> {
             confirmTextColor: Colors.black,
             onConfirm: () {
               Get.back();
-              mode == 'Delete' ? {delete()}
-              : {
-                  doneDialog('Door updated successfully!'),
-                  closeDialogTimer(1),
-                  update(),
-                };
+              mode == 'Delete'
+                  ? {delete()}
+                  : { 
+                      update(),
+                      if(responseCode == '200'){
+                        doneDialog('Door updated successfully!'),
+                        closeDialogTimer(1),
+                      }else{
+                        ErrorDialog(responseCode ,errordetail)
+                      }
+                    };
             });
       },
     );
@@ -137,26 +146,64 @@ class _ShowNamePageState extends State<ShowNamePage> {
               automaticallyImplyLeading: false,
               backgroundColor:
                   door.locked ? Colors.red[400] : Colors.green[400],
-              title: const Text('About this door'));
+              title: const Text('About this door'),
+          );
         },
       ),
       const SizedBox(
         height: 10,
       ),
-      Obx(() => Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-            ),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Door Name: ${door.Name}',
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w700),
-            ),
-          )),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Obx(() => Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                ),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Door Name: ${door.Name}',
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 25,
+                      fontWeight: FontWeight.w700),
+                ),
+              )),
+          ValueListenableBuilder<String>(
+              valueListenable: connecthint,
+              builder: (context, value, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                      color: connecthint.value == 'Connected'
+                          ? Colors.cyanAccent
+                          : Colors.grey,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(20))),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () async {
+                      if (connecthint.value == 'Connected') {
+                        // ignore: avoid_returning_null_for_void
+                        return null;
+                      } else {
+                        ErrorDialog(responseCode, errordetail);
+                      }
+                    },
+                    child: Text(connecthint.value,
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500)
+                        ),
+                  ),
+                );
+              }),
+        ],
+      ),
       Container(
         margin: const EdgeInsets.symmetric(
           horizontal: 12.0,
