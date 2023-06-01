@@ -170,6 +170,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
                       fontWeight: FontWeight.w700),
                 ),
               )),
+          /*
           ValueListenableBuilder<String>(
               valueListenable: connecthint,
               builder: (context, value, child) {
@@ -202,6 +203,7 @@ class _ShowNamePageState extends State<ShowNamePage> {
                   ),
                 );
               }),
+          */
         ],
       ),
       Container(

@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names, file_names
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 
@@ -25,15 +24,14 @@ class _DoorScanPageState extends State<DoorScanPage> {
   DateTime? lastScan;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  final seedQueue = Queue<int>();
+  int seed = 0;
   String HintString = 'Scan the QrCode below if you want to open the door.';
   late final ValueNotifier<String> _ShowedString = ValueNotifier<String>(
       'Scan the QrCode below if you want to open the door.');
   @override
   void initState() {
     super.initState();
-    seedQueue.addLast(DateTime.now().millisecondsSinceEpoch);
-    seedQueue.addLast(DateTime.now().millisecondsSinceEpoch + 10);
+    seedRefresh();
     _timer =
         Timer.periodic(const Duration(seconds: 60), (Timer t) => seedRefresh());
     lastScan = DateTime.now();
@@ -41,8 +39,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
 
   void seedRefresh() {
     setState(() {
-      seedQueue.addLast(DateTime.now().millisecondsSinceEpoch);
-      seedQueue.removeFirst();
+      seed = DateTime.now().millisecondsSinceEpoch;
     });
   }
 
@@ -67,35 +64,29 @@ class _DoorScanPageState extends State<DoorScanPage> {
         }));
         Uint8List xorUserShare = base64Decode(scanData.code!);
         assert(xorUserShare.length == 200);
-        bool isopen = false;
-        for (int seedidx = 0; seedidx < 2; ++seedidx) {
-          if (!isopen) {
-            Uint8List TempUserShare = xorUserShare;
-            Random random = Random(seedQueue.elementAt(seedidx));
-            for (int i = 0; i < 200; i++) {
-              TempUserShare[i] = TempUserShare[i] ^ random.nextInt(256);
-            }
-            if (!door.isblacklist(base64Encode(TempUserShare))) {
-              String Username = '';
-              Uint8List UserShare =
-                  door.TransformShareData(TempUserShare); // Share Len : 400
-              try {
-                Username = GetUserName(UserShare);
-              } catch (e) {
-                Username = 'Cannot be decoded';
-              }
-              if (!isopen && isCorrectKey(UserShare)) {
-                isopen = true;
-                door.insertNameRecord(Username);
-                door.unlock();
-              }
-            } else {
-              _ShowedString.value = 'You are in the black list!';
-              Timer(const Duration(milliseconds: 500), (() {
-                _ShowedString.value = HintString;
-              }));
-            }
+        Uint8List TempUserShare = xorUserShare;
+        Random random = Random(seed);
+        for (int i = 0; i < 200; i++) {
+          TempUserShare[i] = TempUserShare[i] ^ random.nextInt(256);
+        }
+        if (!door.isblacklist(base64Encode(TempUserShare))) {
+          String Username = '';
+          Uint8List UserShare =
+              door.TransformShareData(TempUserShare); // Share Len : 400
+          try {
+            Username = GetUserName(UserShare);
+          } catch (e) {
+            Username = 'Cannot be decoded';
           }
+          if (isCorrectKey(UserShare)) {
+            door.insertNameRecord(Username);
+            door.unlock();
+          }
+        } else {
+          _ShowedString.value = 'You are in the black list!';
+          Timer(const Duration(milliseconds: 500), (() {
+            _ShowedString.value = HintString;
+          }));
         }
         lastScan = currentScan;
       }
@@ -112,7 +103,10 @@ class _DoorScanPageState extends State<DoorScanPage> {
       for (int shift = 0; shift < 4; ++shift) {
         if ((tmp >> shift & 1) == 1) ++count;
       }
-      if (!((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1))) {return false;}
+      if ((count == 3 && Secret[i] == 0) || (count == 4 && Secret[i] == 1)) {
+      }else{
+        return false;
+      } 
     }
     return true;
   }
@@ -184,7 +178,7 @@ class _DoorScanPageState extends State<DoorScanPage> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
               child: QrImage(
-                data: "d=${door.Name}&s=${seedQueue.elementAt(1)}",
+                data: "d=${door.Name}&s=$seed",
                 version: 10,
                 errorCorrectionLevel: QrErrorCorrectLevel.L,
               ),
