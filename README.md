@@ -1,6 +1,6 @@
 # Door lock app based on visual cryptography
 
-1. If the door is unlocked, the door will display in green on the top of the screen, otherwise it is red.
+1. If the door is unlocked, the door will display in green on the top of the screen(right image), otherwise it is red(left image).
 
 ![image](https://github.com/zuyishinlala/Door/blob/main/qr-code-ui.png)
 
