@@ -1,16 +1,9 @@
-# Door
+# Door lock app based on visual cryptography
 
-A new Flutter project.
+1. If the door is unlocked, the door will display in green on the top of the screen, otherwise it is red.
 
-## Getting Started
+![image](https://github.com/zuyishinlala/Door/blob/main/qr-code-ui.png)
 
-This project is a starting point for a Flutter application.
+2. I used a calender to record access data, a red dot below the date means that some people sucessfully opened on that day. Otherwise, no people opened the door on that day.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![image](https://github.com/zuyishinlala/Door/blob/main/record-ui.png)
